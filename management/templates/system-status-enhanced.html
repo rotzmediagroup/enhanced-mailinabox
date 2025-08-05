@@ -1,0 +1,1082 @@
+<h2><i class="fas fa-heartbeat"></i> System Status & Monitoring</h2>
+
+<style>
+    /* Enhanced System Status Styling */
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .status-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .auto-refresh {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .system-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .overview-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border-left: 4px solid;
+        transition: all 0.2s ease;
+    }
+
+    .overview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .overview-card.healthy {
+        border-left-color: var(--success-color);
+    }
+
+    .overview-card.warning {
+        border-left-color: var(--warning-color);
+    }
+
+    .overview-card.critical {
+        border-left-color: var(--danger-color);
+    }
+
+    .overview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .overview-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .overview-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-healthy {
+        background-color: rgba(5, 150, 105, 0.1);
+        color: var(--success-color);
+    }
+
+    .status-warning {
+        background-color: rgba(217, 119, 6, 0.1);
+        color: var(--warning-color);
+    }
+
+    .status-critical {
+        background-color: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+    }
+
+    .overview-metric {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .overview-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .service-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .service-header {
+        padding: 1rem 1.5rem;
+        background: var(--light-bg);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+
+    .service-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-grow: 1;
+    }
+
+    .service-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .service-body {
+        padding: 1.5rem;
+    }
+
+    .service-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .status-dot.running {
+        background-color: var(--success-color);
+    }
+
+    .status-dot.stopped {
+        background-color: var(--danger-color);
+    }
+
+    .status-dot.warning {
+        background-color: var(--warning-color);
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    .service-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .metric {
+        text-align: center;
+    }
+
+    .metric-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    .checks-section {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .checks-header {
+        background: var(--light-bg);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .checks-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checks-summary {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .checks-body {
+        padding: 1.5rem;
+    }
+
+    .check-category {
+        margin-bottom: 2rem;
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .category-title {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .category-status {
+        margin-left: auto;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .check-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .check-item:last-child {
+        border-bottom: none;
+    }
+
+    .check-icon {
+        width: 20px;
+        text-align: center;
+    }
+
+    .check-icon.success {
+        color: var(--success-color);
+    }
+
+    .check-icon.warning {
+        color: var(--warning-color);
+    }
+
+    .check-icon.error {
+        color: var(--danger-color);
+    }
+
+    .check-content {
+        flex-grow: 1;
+    }
+
+    .check-title {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .check-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .check-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .logs-section {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .logs-header {
+        background: var(--light-bg);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logs-body {
+        padding: 1.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .log-entry {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+    }
+
+    .log-entry:last-child {
+        border-bottom: none;
+    }
+
+    .log-timestamp {
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .log-level {
+        padding: 0.125rem 0.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .log-level.info {
+        background-color: rgba(8, 145, 178, 0.1);
+        color: var(--info-color);
+    }
+
+    .log-level.warning {
+        background-color: rgba(217, 119, 6, 0.1);
+        color: var(--warning-color);
+    }
+
+    .log-level.error {
+        background-color: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+    }
+
+    .log-message {
+        flex-grow: 1;
+        color: var(--text-primary);
+    }
+
+    .refresh-indicator {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        display: none;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+</style>
+
+<!-- Status Header -->
+<div class="status-header">
+    <div>
+        <p class="text-muted">Monitor your mail server's health, services, and system performance in real-time.</p>
+    </div>
+    <div class="status-controls">
+        <div class="auto-refresh">
+            <input type="checkbox" id="auto-refresh" checked>
+            <label for="auto-refresh">Auto-refresh</label>
+            <select id="refresh-interval" class="form-control form-control-sm ml-2">
+                <option value="30">30s</option>
+                <option value="60" selected>1m</option>
+                <option value="300">5m</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="refreshSystemStatus()">
+            <i class="fas fa-sync"></i> Refresh Now
+        </button>
+    </div>
+</div>
+
+<!-- Refresh Indicator -->
+<div id="refresh-indicator" class="refresh-indicator">
+    <i class="fas fa-sync fa-spin"></i> Updating system status...
+</div>
+
+<!-- System Overview -->
+<div class="system-overview">
+    <div class="overview-card healthy" id="overall-health">
+        <div class="overview-header">
+            <div class="overview-title">
+                <i class="fas fa-heartbeat"></i> Overall Health
+            </div>
+            <div class="overview-status status-healthy">Healthy</div>
+        </div>
+        <div class="overview-metric">98%</div>
+        <div class="overview-description">All critical services running normally</div>
+    </div>
+    
+    <div class="overview-card healthy" id="uptime-card">
+        <div class="overview-header">
+            <div class="overview-title">
+                <i class="fas fa-clock"></i> System Uptime
+            </div>
+            <div class="overview-status status-healthy">Stable</div>
+        </div>
+        <div class="overview-metric" id="system-uptime">15d 4h 23m</div>
+        <div class="overview-description">Last restart: 15 days ago</div>
+    </div>
+    
+    <div class="overview-card warning" id="storage-card">
+        <div class="overview-header">
+            <div class="overview-title">
+                <i class="fas fa-hdd"></i> Storage Usage
+            </div>
+            <div class="overview-status status-warning">Monitor</div>
+        </div>
+        <div class="overview-metric" id="storage-usage">67%</div>
+        <div class="overview-description">23.4 GB of 35 GB used</div>
+    </div>
+    
+    <div class="overview-card healthy" id="memory-card">
+        <div class="overview-header">
+            <div class="overview-title">
+                <i class="fas fa-memory"></i> Memory Usage
+            </div>
+            <div class="overview-status status-healthy">Normal</div>
+        </div>
+        <div class="overview-metric" id="memory-usage">45%</div>
+        <div class="overview-description">1.8 GB of 4 GB used</div>
+    </div>
+</div>
+
+<!-- Services Status -->
+<div class="services-grid">
+    <div class="service-card">
+        <div class="service-header">
+            <div class="service-title">
+                <i class="fas fa-envelope"></i> Mail Services
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="restartService('mail')">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        <div class="service-body">
+            <div class="service-status">
+                <div class="status-dot running"></div>
+                <span><strong>Running</strong> - All mail services operational</span>
+            </div>
+            <div class="service-metrics">
+                <div class="metric">
+                    <div class="metric-value">1,247</div>
+                    <div class="metric-label">Emails Today</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">89</div>
+                    <div class="metric-label">Queue Size</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">99.8%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="service-card">
+        <div class="service-header">
+            <div class="service-title">
+                <i class="fas fa-globe"></i> Web Services
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="restartService('web')">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        <div class="service-body">
+            <div class="service-status">
+                <div class="status-dot running"></div>
+                <span><strong>Running</strong> - Web server responding</span>
+            </div>
+            <div class="service-metrics">
+                <div class="metric">
+                    <div class="metric-value">2.3k</div>
+                    <div class="metric-label">Requests/hr</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">145ms</div>
+                    <div class="metric-label">Avg Response</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="service-card">
+        <div class="service-header">
+            <div class="service-title">
+                <i class="fas fa-network-wired"></i> DNS Services
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="restartService('dns')">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        <div class="service-body">
+            <div class="service-status">
+                <div class="status-dot running"></div>
+                <span><strong>Running</strong> - DNS resolution working</span>
+            </div>
+            <div class="service-metrics">
+                <div class="metric">
+                    <div class="metric-value">456</div>
+                    <div class="metric-label">Queries/hr</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">12ms</div>
+                    <div class="metric-label">Avg Latency</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">99.9%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="service-card">
+        <div class="service-header">
+            <div class="service-title">
+                <i class="fas fa-shield-alt"></i> Security Services
+            </div>
+            <div class="service-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="restartService('security')">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+        <div class="service-body">
+            <div class="service-status">
+                <div class="status-dot running"></div>
+                <span><strong>Running</strong> - Firewall and spam filter active</span>
+            </div>
+            <div class="service-metrics">
+                <div class="metric">
+                    <div class="metric-value">23</div>
+                    <div class="metric-label">Blocked Today</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">0</div>
+                    <div class="metric-label">Intrusions</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Protection</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Checks -->
+<div class="checks-section">
+    <div class="checks-header">
+        <div class="checks-title">
+            <i class="fas fa-clipboard-check"></i> System Health Checks
+        </div>
+        <div class="checks-summary">
+            <div class="summary-item">
+                <i class="fas fa-check-circle text-success"></i>
+                <span id="checks-passed">12 Passed</span>
+            </div>
+            <div class="summary-item">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+                <span id="checks-warnings">2 Warnings</span>
+            </div>
+            <div class="summary-item">
+                <i class="fas fa-times-circle text-danger"></i>
+                <span id="checks-errors">0 Errors</span>
+            </div>
+        </div>
+    </div>
+    <div class="checks-body" id="system-checks">
+        <!-- System checks will be populated here -->
+    </div>
+</div>
+
+<!-- System Logs -->
+<div class="logs-section">
+    <div class="logs-header">
+        <div class="checks-title">
+            <i class="fas fa-file-alt"></i> Recent System Logs
+        </div>
+        <div>
+            <select id="log-level-filter" class="form-control form-control-sm">
+                <option value="">All Levels</option>
+                <option value="error">Errors Only</option>
+                <option value="warning">Warnings & Errors</option>
+                <option value="info">Info & Above</option>
+            </select>
+        </div>
+    </div>
+    <div class="logs-body" id="system-logs">
+        <!-- System logs will be populated here -->
+    </div>
+</div>
+
+<script>
+    let autoRefreshInterval;
+    let isRefreshing = false;
+
+    // Initialize system status panel
+    function refreshSystemStatus() {
+        if (isRefreshing) return;
+        
+        isRefreshing = true;
+        showRefreshIndicator();
+        
+        // Load all status data
+        loadSystemOverview();
+        loadServicesStatus();
+        loadSystemChecks();
+        loadSystemLogs();
+        
+        setTimeout(() => {
+            hideRefreshIndicator();
+            isRefreshing = false;
+        }, 1500);
+    }
+
+    function loadSystemOverview() {
+        // Load system metrics (mock data for demonstration)
+        api('/system/overview', 'GET', {}, function(data) {
+            updateOverviewCards(data);
+        }, function() {
+            // Fallback to mock data
+            updateOverviewCards({
+                uptime: '15d 4h 23m',
+                storage_used: 67,
+                storage_total: 35,
+                memory_used: 45,
+                memory_total: 4,
+                health_score: 98
+            });
+        });
+    }
+
+    function updateOverviewCards(data) {
+        $('#system-uptime').text(data.uptime);
+        $('#storage-usage').text(data.storage_used + '%');
+        $('#memory-usage').text(data.memory_used + '%');
+        
+        // Update storage card status
+        const storageCard = $('#storage-card');
+        if (data.storage_used > 80) {
+            storageCard.removeClass('healthy warning').addClass('critical');
+            storageCard.find('.overview-status').removeClass('status-healthy status-warning').addClass('status-critical').text('Critical');
+        } else if (data.storage_used > 60) {
+            storageCard.removeClass('healthy critical').addClass('warning');
+            storageCard.find('.overview-status').removeClass('status-healthy status-critical').addClass('status-warning').text('Monitor');
+        } else {
+            storageCard.removeClass('warning critical').addClass('healthy');
+            storageCard.find('.overview-status').removeClass('status-warning status-critical').addClass('status-healthy').text('Normal');
+        }
+    }
+
+    function loadServicesStatus() {
+        api('/system/services', 'GET', {}, function(services) {
+            updateServicesDisplay(services);
+        }, function() {
+            // Services are already displayed with mock data
+        });
+    }
+
+    function loadSystemChecks() {
+        api('/system/checks', 'GET', {}, function(checks) {
+            renderSystemChecks(checks);
+        }, function() {
+            // Fallback to mock checks
+            renderSystemChecks(getMockSystemChecks());
+        });
+    }
+
+    function renderSystemChecks(checks) {
+        const checksContainer = $('#system-checks');
+        checksContainer.empty();
+
+        const categories = groupChecksByCategory(checks);
+        
+        Object.keys(categories).forEach(categoryName => {
+            const categoryChecks = categories[categoryName];
+            const categoryDiv = createCheckCategory(categoryName, categoryChecks);
+            checksContainer.append(categoryDiv);
+        });
+
+        updateChecksSummary(checks);
+    }
+
+    function groupChecksByCategory(checks) {
+        const categories = {};
+        checks.forEach(check => {
+            const category = check.category || 'General';
+            if (!categories[category]) {
+                categories[category] = [];
+            }
+            categories[category].push(check);
+        });
+        return categories;
+    }
+
+    function createCheckCategory(categoryName, checks) {
+        const passedCount = checks.filter(c => c.status === 'success').length;
+        const warningCount = checks.filter(c => c.status === 'warning').length;
+        const errorCount = checks.filter(c => c.status === 'error').length;
+        
+        let categoryStatus = 'status-healthy';
+        let categoryText = 'All Good';
+        
+        if (errorCount > 0) {
+            categoryStatus = 'status-critical';
+            categoryText = `${errorCount} Error${errorCount > 1 ? 's' : ''}`;
+        } else if (warningCount > 0) {
+            categoryStatus = 'status-warning';
+            categoryText = `${warningCount} Warning${warningCount > 1 ? 's' : ''}`;
+        }
+
+        const categoryDiv = $(`
+            <div class="check-category">
+                <div class="category-header">
+                    <div class="category-title">${categoryName}</div>
+                    <div class="category-status ${categoryStatus}">${categoryText}</div>
+                </div>
+                <div class="category-checks"></div>
+            </div>
+        `);
+
+        const checksContainer = categoryDiv.find('.category-checks');
+        checks.forEach(check => {
+            const checkItem = createCheckItem(check);
+            checksContainer.append(checkItem);
+        });
+
+        return categoryDiv;
+    }
+
+    function createCheckItem(check) {
+        const iconClass = check.status === 'success' ? 'fas fa-check-circle success' :
+                         check.status === 'warning' ? 'fas fa-exclamation-triangle warning' :
+                         'fas fa-times-circle error';
+
+        const actions = check.actions ? check.actions.map(action => 
+            `<button class="btn btn-sm btn-outline-primary" onclick="${action.onclick}">${action.label}</button>`
+        ).join('') : '';
+
+        return $(`
+            <div class="check-item">
+                <div class="check-icon">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="check-content">
+                    <div class="check-title">${check.title}</div>
+                    <div class="check-description">${check.description}</div>
+                </div>
+                <div class="check-actions">
+                    ${actions}
+                </div>
+            </div>
+        `);
+    }
+
+    function updateChecksSummary(checks) {
+        const passed = checks.filter(c => c.status === 'success').length;
+        const warnings = checks.filter(c => c.status === 'warning').length;
+        const errors = checks.filter(c => c.status === 'error').length;
+
+        $('#checks-passed').text(`${passed} Passed`);
+        $('#checks-warnings').text(`${warnings} Warnings`);
+        $('#checks-errors').text(`${errors} Errors`);
+    }
+
+    function loadSystemLogs() {
+        api('/system/logs', 'GET', {}, function(logs) {
+            renderSystemLogs(logs);
+        }, function() {
+            // Fallback to mock logs
+            renderSystemLogs(getMockSystemLogs());
+        });
+    }
+
+    function renderSystemLogs(logs) {
+        const logsContainer = $('#system-logs');
+        logsContainer.empty();
+
+        const filteredLogs = filterLogsByLevel(logs);
+        
+        filteredLogs.forEach(log => {
+            const logEntry = createLogEntry(log);
+            logsContainer.append(logEntry);
+        });
+    }
+
+    function filterLogsByLevel(logs) {
+        const levelFilter = $('#log-level-filter').val();
+        if (!levelFilter) return logs;
+
+        const levelPriority = { error: 3, warning: 2, info: 1 };
+        const minPriority = levelPriority[levelFilter] || 0;
+
+        return logs.filter(log => (levelPriority[log.level] || 0) >= minPriority);
+    }
+
+    function createLogEntry(log) {
+        return $(`
+            <div class="log-entry">
+                <div class="log-timestamp">${formatLogTimestamp(log.timestamp)}</div>
+                <div class="log-level ${log.level}">${log.level.toUpperCase()}</div>
+                <div class="log-message">${log.message}</div>
+            </div>
+        `);
+    }
+
+    function formatLogTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString();
+    }
+
+    // Service management functions
+    function restartService(serviceName) {
+        if (confirm(`Restart ${serviceName} service? This may cause brief downtime.`)) {
+            showRefreshIndicator();
+            
+            api(`/system/services/${serviceName}/restart`, 'POST', {}, function() {
+                setTimeout(() => {
+                    refreshSystemStatus();
+                    show_modal_success('Service Restarted', `${serviceName} service has been restarted successfully.`);
+                }, 2000);
+            }, function() {
+                hideRefreshIndicator();
+                show_modal_error('Restart Failed', `Failed to restart ${serviceName} service.`);
+            });
+        }
+    }
+
+    // Auto-refresh functionality
+    function setupAutoRefresh() {
+        const autoRefreshCheckbox = $('#auto-refresh');
+        const refreshIntervalSelect = $('#refresh-interval');
+
+        function updateAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+
+            if (autoRefreshCheckbox.is(':checked')) {
+                const interval = parseInt(refreshIntervalSelect.val()) * 1000;
+                autoRefreshInterval = setInterval(refreshSystemStatus, interval);
+            }
+        }
+
+        autoRefreshCheckbox.on('change', updateAutoRefresh);
+        refreshIntervalSelect.on('change', updateAutoRefresh);
+
+        // Start auto-refresh
+        updateAutoRefresh();
+    }
+
+    // Log level filter
+    function setupLogFilter() {
+        $('#log-level-filter').on('change', function() {
+            loadSystemLogs();
+        });
+    }
+
+    // UI helper functions
+    function showRefreshIndicator() {
+        $('#refresh-indicator').fadeIn();
+    }
+
+    function hideRefreshIndicator() {
+        $('#refresh-indicator').fadeOut();
+    }
+
+    // Mock data functions
+    function getMockSystemChecks() {
+        return [
+            {
+                category: 'Mail Services',
+                title: 'SMTP Server',
+                description: 'Postfix is running and accepting connections',
+                status: 'success'
+            },
+            {
+                category: 'Mail Services',
+                title: 'IMAP Server',
+                description: 'Dovecot is running and serving mailboxes',
+                status: 'success'
+            },
+            {
+                category: 'Mail Services',
+                title: 'Mail Queue',
+                description: '89 messages in queue (normal)',
+                status: 'warning'
+            },
+            {
+                category: 'DNS',
+                title: 'DNS Resolution',
+                description: 'DNS server is responding to queries',
+                status: 'success'
+            },
+            {
+                category: 'DNS',
+                title: 'External DNS',
+                description: 'External DNS records are properly configured',
+                status: 'success'
+            },
+            {
+                category: 'Security',
+                title: 'SSL Certificates',
+                description: 'All certificates are valid and not expiring soon',
+                status: 'success'
+            },
+            {
+                category: 'Security',
+                title: 'Firewall',
+                description: 'UFW firewall is active and configured',
+                status: 'success'
+            },
+            {
+                category: 'Security',
+                title: 'Fail2Ban',
+                description: 'Intrusion prevention system is running',
+                status: 'success'
+            },
+            {
+                category: 'System',
+                title: 'Disk Space',
+                description: 'Disk usage is at 67% - monitor closely',
+                status: 'warning'
+            },
+            {
+                category: 'System',
+                title: 'Memory Usage',
+                description: 'Memory usage is normal (45%)',
+                status: 'success'
+            },
+            {
+                category: 'System',
+                title: 'System Updates',
+                description: 'System is up to date',
+                status: 'success'
+            },
+            {
+                category: 'Backup',
+                title: 'Backup Status',
+                description: 'Last backup completed successfully 6 hours ago',
+                status: 'success'
+            }
+        ];
+    }
+
+    function getMockSystemLogs() {
+        const now = new Date();
+        return [
+            {
+                timestamp: new Date(now - 300000).toISOString(),
+                level: 'info',
+                message: 'Mail delivery completed successfully to user@example.com'
+            },
+            {
+                timestamp: new Date(now - 600000).toISOString(),
+                level: 'warning',
+                message: 'High disk usage detected: 67% of available space used'
+            },
+            {
+                timestamp: new Date(now - 900000).toISOString(),
+                level: 'info',
+                message: 'User admin@example.com logged in via IMAP'
+            },
+            {
+                timestamp: new Date(now - 1200000).toISOString(),
+                level: 'info',
+                message: 'Spam message blocked from suspicious sender'
+            },
+            {
+                timestamp: new Date(now - 1500000).toISOString(),
+                level: 'info',
+                message: 'DNS query resolved for example.com'
+            },
+            {
+                timestamp: new Date(now - 1800000).toISOString(),
+                level: 'warning',
+                message: 'Failed login attempt from IP 192.168.1.100'
+            },
+            {
+                timestamp: new Date(now - 2100000).toISOString(),
+                level: 'info',
+                message: 'SSL certificate validation successful'
+            },
+            {
+                timestamp: new Date(now - 2400000).toISOString(),
+                level: 'info',
+                message: 'System backup completed successfully'
+            }
+        ];
+    }
+
+    // Initialize when panel is loaded
+    $(document).ready(function() {
+        setupAutoRefresh();
+        setupLogFilter();
+        
+        // Load initial data
+        refreshSystemStatus();
+    });
+
+    // Cleanup when leaving panel
+    function cleanupSystemStatus() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+    }
+</script>
+

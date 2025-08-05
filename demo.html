@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Enhanced Mail-in-a-Box Control Panel - Demo</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Enhanced Modern Styling */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
+            --dark-bg: #1e293b;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand::before {
+            content: "📧";
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            background-color: rgba(37, 99, 235, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .dropdown-item i {
+            width: 1rem;
+            text-align: center;
+        }
+
+        /* Main Container */
+        .main-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+
+        /* Panel Styling */
+        .admin_panel {
+            display: none;
+            padding: 2rem;
+            min-height: 600px;
+        }
+
+        .admin_panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin_panel h2 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin_panel h2 i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        /* Enhanced Cards */
+        .card {
+            border: none;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #047857);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #b45309);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #0e7490);
+        }
+
+        /* Welcome Panel Styling */
+        #panel_welcome {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .welcome-hero {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .welcome-hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Users Panel Styling */
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .users-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .user-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 150px 120px 100px 150px;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .user-row:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-details h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .quota-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+
+        .quota-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .quota-low { background-color: var(--success-color); }
+        .quota-medium { background-color: var(--warning-color); }
+        .quota-high { background-color: var(--danger-color); }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .badge-admin {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-user {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* System Status Styling */
+        .system-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid;
+            transition: all 0.2s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .overview-card.healthy {
+            border-left-color: var(--success-color);
+        }
+
+        .overview-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .overview-card.critical {
+            border-left-color: var(--danger-color);
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .overview-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .overview-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-healthy {
+            background-color: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(217, 119, 6, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-critical {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+        }
+
+        .overview-metric {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Chart containers */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: var(--radius-md);
+            }
+
+            .admin_panel {
+                padding: 1rem;
+            }
+
+            .welcome-hero h1 {
+                font-size: 2rem;
+            }
+
+            .user-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .users-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#welcome" onclick="return show_panel(this);">
+                mail.example.com
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- System Management -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-server"></i> System
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#system_status" onclick="return show_panel(this);">
+                                <i class="fas fa-heartbeat"></i> Status Checks
+                            </a></li>
+                            <li><a class="dropdown-item" href="#ssl" onclick="return show_panel(this);">
+                                <i class="fas fa-lock"></i> TLS (SSL) Certificates
+                            </a></li>
+                            <li><a class="dropdown-item" href="#system_backup" onclick="return show_panel(this);">
+                                <i class="fas fa-hdd"></i> Backup Status
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header">Advanced Pages</li>
+                            <li><a class="dropdown-item" href="#custom_dns" onclick="return show_panel(this);">
+                                <i class="fas fa-cog"></i> Custom DNS
+                            </a></li>
+                            <li><a class="dropdown-item" href="#external_dns" onclick="return show_panel(this);">
+                                <i class="fas fa-globe"></i> External DNS
+                            </a></li>
+                            <li><a class="dropdown-item" href="#munin" onclick="return show_panel(this);">
+                                <i class="fas fa-chart-line"></i> Munin Monitoring
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Mail Management -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-envelope"></i> Mail & Users
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#mail-guide" onclick="return show_panel(this);">
+                                <i class="fas fa-book"></i> Instructions
+                            </a></li>
+                            <li><a class="dropdown-item" href="#users" onclick="return show_panel(this);">
+                                <i class="fas fa-users"></i> Users
+                            </a></li>
+                            <li><a class="dropdown-item" href="#aliases" onclick="return show_panel(this);">
+                                <i class="fas fa-at"></i> Aliases
+                            </a></li>
+                            <li><a class="dropdown-item" href="#mail_analytics" onclick="return show_panel(this);">
+                                <i class="fas fa-chart-bar"></i> Mail Analytics
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header">Your Account</li>
+                            <li><a class="dropdown-item" href="#mfa" onclick="return show_panel(this);">
+                                <i class="fas fa-shield-alt"></i> Two-Factor Authentication
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Web & Services -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe-americas"></i> Web & Services
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#sync_guide" onclick="return show_panel(this);">
+                                <i class="fas fa-sync"></i> Contacts/Calendar
+                            </a></li>
+                            <li><a class="dropdown-item" href="#web" onclick="return show_panel(this);">
+                                <i class="fas fa-globe"></i> Web
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="alert('Logout functionality'); return false;">
+                            <i class="fas fa-sign-out-alt"></i> Log out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Enhanced Welcome Panel -->
+        <div id="panel_welcome" class="admin_panel active">
+            <div class="welcome-hero">
+                <h1>Welcome to Mail-in-a-Box</h1>
+                <p>Your complete email and web hosting solution with enhanced management capabilities. Monitor, manage, and maintain your mail server with ease.</p>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div class="stat-label">System Health</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1,247</div>
+                    <div class="stat-label">Daily Mail Volume</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">23%</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-rocket"></i> Quick Start
+                        </div>
+                        <div class="card-body">
+                            <p>Get started with your Mail-in-a-Box setup:</p>
+                            <a href="#users" onclick="return show_panel(this);" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Add Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-shield-alt"></i> Security
+                        </div>
+                        <div class="card-body">
+                            <p>Secure your mail server:</p>
+                            <a href="#ssl" onclick="return show_panel(this);" class="btn btn-success">
+                                <i class="fas fa-lock"></i> Check SSL
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-line"></i> Monitor
+                        </div>
+                        <div class="card-body">
+                            <p>Monitor your system:</p>
+                            <a href="#system_status" onclick="return show_panel(this);" class="btn btn-info">
+                                <i class="fas fa-heartbeat"></i> System Status
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Users Panel -->
+        <div id="panel_users" class="admin_panel">
+            <h2><i class="fas fa-users"></i> User Management</h2>
+            
+            <div class="users-header">
+                <div>
+                    <p class="text-muted">Manage user accounts, quotas, and permissions for your mail server.</p>
+                </div>
+                <div class="users-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Search users...">
+                    </div>
+                    <select class="form-control" style="width: auto;">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">11</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2.3 GB</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Admin Users</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <!-- Table Headers -->
+                    <div class="user-row" style="background: var(--light-bg); font-weight: 600;">
+                        <div></div>
+                        <div>User</div>
+                        <div>Storage Usage</div>
+                        <div>Last Login</div>
+                        <div>Status</div>
+                        <div>Actions</div>
+                    </div>
+                    
+                    <!-- Sample Users -->
+                    <div class="user-row">
+                        <div><input type="checkbox"></div>
+                        <div class="user-info">
+                            <div class="user-avatar">AD</div>
+                            <div class="user-details">
+                                <h5>admin@example.com</h5>
+                                <p>Administrator</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>500 MB / 1 GB</div>
+                            <div class="quota-bar">
+                                <div class="quota-fill quota-medium" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <div>2 hours ago</div>
+                        <div><span class="badge badge-admin">Admin</span></div>
+                        <div>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-warning"><i class="fas fa-key"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="user-row">
+                        <div><input type="checkbox"></div>
+                        <div class="user-info">
+                            <div class="user-avatar">JD</div>
+                            <div class="user-details">
+                                <h5>john@example.com</h5>
+                                <p>John Doe</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>250 MB / 500 MB</div>
+                            <div class="quota-bar">
+                                <div class="quota-fill quota-medium" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <div>1 day ago</div>
+                        <div><span class="badge badge-user">User</span></div>
+                        <div>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-warning"><i class="fas fa-key"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="user-row">
+                        <div><input type="checkbox"></div>
+                        <div class="user-info">
+                            <div class="user-avatar">JS</div>
+                            <div class="user-details">
+                                <h5>jane@test.com</h5>
+                                <p>Jane Smith</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>100 MB / 500 MB</div>
+                            <div class="quota-bar">
+                                <div class="quota-fill quota-low" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div>3 hours ago</div>
+                        <div><span class="badge badge-user">User</span></div>
+                        <div>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-warning"><i class="fas fa-key"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced System Status Panel -->
+        <div id="panel_system_status" class="admin_panel">
+            <h2><i class="fas fa-heartbeat"></i> System Status & Monitoring</h2>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="text-muted">Monitor your mail server's health, services, and system performance in real-time.</p>
+                <button class="btn btn-primary">
+                    <i class="fas fa-sync"></i> Refresh Now
+                </button>
+            </div>
+
+            <!-- System Overview -->
+            <div class="system-overview">
+                <div class="overview-card healthy">
+                    <div class="overview-header">
+                        <div class="overview-title">
+                            <i class="fas fa-heartbeat"></i> Overall Health
+                        </div>
+                        <div class="overview-status status-healthy">Healthy</div>
+                    </div>
+                    <div class="overview-metric">98%</div>
+                    <div class="overview-description">All critical services running normally</div>
+                </div>
+                
+                <div class="overview-card healthy">
+                    <div class="overview-header">
+                        <div class="overview-title">
+                            <i class="fas fa-clock"></i> System Uptime
+                        </div>
+                        <div class="overview-status status-healthy">Stable</div>
+                    </div>
+                    <div class="overview-metric">15d 4h 23m</div>
+                    <div class="overview-description">Last restart: 15 days ago</div>
+                </div>
+                
+                <div class="overview-card warning">
+                    <div class="overview-header">
+                        <div class="overview-title">
+                            <i class="fas fa-hdd"></i> Storage Usage
+                        </div>
+                        <div class="overview-status status-warning">Monitor</div>
+                    </div>
+                    <div class="overview-metric">67%</div>
+                    <div class="overview-description">23.4 GB of 35 GB used</div>
+                </div>
+                
+                <div class="overview-card healthy">
+                    <div class="overview-header">
+                        <div class="overview-title">
+                            <i class="fas fa-memory"></i> Memory Usage
+                        </div>
+                        <div class="overview-status status-healthy">Normal</div>
+                    </div>
+                    <div class="overview-metric">45%</div>
+                    <div class="overview-description">1.8 GB of 4 GB used</div>
+                </div>
+            </div>
+
+            <!-- Services Status -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-envelope"></i> Mail Services
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-2" style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--success-color);"></div>
+                                <span><strong>Running</strong> - All mail services operational</span>
+                            </div>
+                            <div class="row text-center">
+                                <div class="col">
+                                    <div class="fw-bold text-primary">1,247</div>
+                                    <small class="text-muted">Emails Today</small>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-primary">89</div>
+                                    <small class="text-muted">Queue Size</small>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-primary">99.8%</div>
+                                    <small class="text-muted">Uptime</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-globe"></i> Web Services
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-2" style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--success-color);"></div>
+                                <span><strong>Running</strong> - Web server responding</span>
+                            </div>
+                            <div class="row text-center">
+                                <div class="col">
+                                    <div class="fw-bold text-primary">2.3k</div>
+                                    <small class="text-muted">Requests/hr</small>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-primary">145ms</div>
+                                    <small class="text-muted">Avg Response</small>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-primary">100%</div>
+                                    <small class="text-muted">Uptime</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mail Analytics Panel -->
+        <div id="panel_mail_analytics" class="admin_panel">
+            <h2><i class="fas fa-chart-bar"></i> Mail Analytics Dashboard</h2>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="text-muted">Analyze email traffic, user activity, and system performance metrics.</p>
+                <div class="d-flex gap-2">
+                    <select class="form-control" style="width: auto;">
+                        <option>Last 24 Hours</option>
+                        <option>Last Week</option>
+                        <option>Last Month</option>
+                    </select>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analytics Overview -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value">1,247</div>
+                    <div class="stat-label">Emails Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2,156</div>
+                    <div class="stat-label">Emails Received</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">89</div>
+                    <div class="stat-label">Spam Blocked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">User Logins</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-area"></i> Email Volume Over Time
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="volume-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-pie"></i> Email Distribution
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="distribution-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other panels would be included here -->
+        <div id="panel_ssl" class="admin_panel">
+            <h2><i class="fas fa-lock"></i> TLS (SSL) Certificates</h2>
+            <p>SSL certificate management panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_system_backup" class="admin_panel">
+            <h2><i class="fas fa-hdd"></i> Backup Status</h2>
+            <p>Backup management panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_aliases" class="admin_panel">
+            <h2><i class="fas fa-at"></i> Aliases</h2>
+            <p>Email aliases management panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_custom_dns" class="admin_panel">
+            <h2><i class="fas fa-cog"></i> Custom DNS</h2>
+            <p>Custom DNS configuration panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_external_dns" class="admin_panel">
+            <h2><i class="fas fa-globe"></i> External DNS</h2>
+            <p>External DNS configuration panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_munin" class="admin_panel">
+            <h2><i class="fas fa-chart-line"></i> Munin Monitoring</h2>
+            <p>Munin monitoring panel would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_mail-guide" class="admin_panel">
+            <h2><i class="fas fa-book"></i> Mail Instructions</h2>
+            <p>Mail setup instructions would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_mfa" class="admin_panel">
+            <h2><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h2>
+            <p>Two-factor authentication settings would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_sync_guide" class="admin_panel">
+            <h2><i class="fas fa-sync"></i> Contacts/Calendar</h2>
+            <p>Contacts and calendar sync instructions would be displayed here with the enhanced styling.</p>
+        </div>
+
+        <div id="panel_web" class="admin_panel">
+            <h2><i class="fas fa-globe"></i> Web</h2>
+            <p>Web hosting configuration would be displayed here with the enhanced styling.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Enhanced panel switching with animations
+        function show_panel(panelid) {
+            if (typeof panelid == 'string') {
+                panelid = panelid.substring(1);
+            } else {
+                panelid = panelid.getAttribute('href').substring(1);
+            }
+            
+            // Hide all panels
+            document.querySelectorAll('.admin_panel.active').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show target panel with animation
+            setTimeout(() => {
+                const targetPanel = document.getElementById('panel_' + panelid);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                    
+                    // Update URL fragment
+                    if (history.pushState) {
+                        history.pushState(null, null, '#' + panelid);
+                    }
+                    
+                    // Initialize panel-specific features
+                    initializePanelFeatures(panelid);
+                }
+            }, 150);
+            
+            return false;
+        }
+
+        // Initialize panel-specific features
+        function initializePanelFeatures(panelId) {
+            if (panelId === 'mail_analytics') {
+                initializeCharts();
+            }
+        }
+
+        // Initialize charts for analytics panel
+        function initializeCharts() {
+            // Volume Chart
+            const volumeCtx = document.getElementById('volume-chart');
+            if (volumeCtx && !volumeCtx.chart) {
+                volumeCtx.chart = new Chart(volumeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                        datasets: [
+                            {
+                                label: 'Sent',
+                                data: [12, 19, 25, 45, 38, 28, 15],
+                                borderColor: '#059669',
+                                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Received',
+                                data: [8, 25, 35, 55, 48, 35, 22],
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Distribution Chart
+            const distributionCtx = document.getElementById('distribution-chart');
+            if (distributionCtx && !distributionCtx.chart) {
+                distributionCtx.chart = new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sent', 'Received', 'Blocked'],
+                        datasets: [{
+                            data: [1247, 2156, 89],
+                            backgroundColor: ['#059669', '#2563eb', '#dc2626']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle URL fragment on load
+            const fragment = window.location.hash.substring(1);
+            if (fragment && document.getElementById('panel_' + fragment)) {
+                show_panel(fragment);
+            }
+
+            // Handle browser back/forward
+            window.addEventListener('popstate', function() {
+                const fragment = window.location.hash.substring(1) || 'welcome';
+                show_panel(fragment);
+            });
+        });
+    </script>
+</body>
+</html>
+

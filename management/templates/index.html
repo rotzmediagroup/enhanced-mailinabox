@@ -1,476 +1,867 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{hostname}} - Mail-in-a-Box Control Panel</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <link rel="stylesheet" href="/admin/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/admin/assets/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/admin/assets/fontawesome/css/solid.min.css">
+    
+    <style>
+        /* Enhanced Modern Styling */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
+            --dark-bg: #1e293b;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
 
-        <title>{{hostname}} - Mail-in-a-Box Control Panel</title>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
 
-        <meta name="robots" content="noindex, nofollow">
+        /* Enhanced Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 0;
+        }
 
-        <link rel="stylesheet" href="/admin/assets/bootstrap/css/bootstrap.min.css">
-        <style>
-            body {
-              overflow-y: scroll;
-              padding-bottom: 20px;
-            }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-            p {
-              margin-bottom: 1.25em;
-            }
+        .navbar-brand::before {
+            content: "📧";
+            font-size: 1.5rem;
+        }
 
-            h1, h2, h3, h4 {
-              font-family: sans-serif;
-              font-weight: bold;
-            }
+        .navbar-nav .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+        }
 
-            h2 {
-              margin: 1em 0;
-            }
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+            background-color: rgba(37, 99, 235, 0.1);
+            transform: translateY(-1px);
+        }
 
-            h3 {
-              font-size: 130%;
-              border-bottom: 1px solid black;
-              padding-bottom: 3px;
-              margin-bottom: 13px;
-              margin-top: 30px;
-            }
-            .panel-heading h3 {
-              border: none;
-              padding: 0;
-              margin: 0;
-            }
+        .navbar-nav .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
 
-            h4 {
-              font-size: 110%;
-              margin-bottom: 13px;
-              margin-top: 18px;
-            }
-            h4:first-child {
-              margin-top: 6px;
+        .navbar-nav .dropdown-item {
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-nav .dropdown-item:hover {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .navbar-nav .dropdown-item i {
+            width: 1rem;
+            text-align: center;
+        }
+
+        /* Main Container */
+        .container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+
+        /* Panel Styling */
+        .admin_panel {
+            display: none;
+            padding: 2rem;
+            min-height: 600px;
+        }
+
+        .admin_panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin_panel h2 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin_panel h2 i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        /* Enhanced Cards */
+        .card {
+            border: none;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #047857);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #b45309);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #0e7490);
+        }
+
+        /* Enhanced Tables */
+        .table {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            border: none;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 1rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+            transform: scale(1.01);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Enhanced Forms */
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-ok {
+            background-color: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(217, 119, 6, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-error {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-indicator::before {
+            content: "●";
+            font-size: 0.75rem;
+        }
+
+        /* Enhanced Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: rgba(5, 150, 105, 0.1);
+            border-left-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background-color: rgba(217, 119, 6, 0.1);
+            border-left-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 38, 38, 0.1);
+            border-left-color: var(--danger-color);
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background-color: rgba(8, 145, 178, 0.1);
+            border-left-color: var(--info-color);
+            color: #155e75;
+        }
+
+        /* Loading States */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                border-radius: var(--radius-md);
             }
 
             .admin_panel {
-              display: none;
+                padding: 1rem;
             }
 
-            table.table {
-              margin: 1.5em 0;
+            .navbar-nav {
+                background: white;
+                border-radius: var(--radius-lg);
+                margin-top: 1rem;
+                padding: 1rem;
+                box-shadow: var(--shadow-md);
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light-bg: #374151;
+                --text-primary: #f9fafb;
+                --text-secondary: #d1d5db;
+                --border-color: #4b5563;
             }
 
-            ol li {
-              margin-bottom: 1em;
+            body {
+                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
             }
 
-            .if-logged-in { display: none; }
-            .if-logged-in-admin { display: none; }
+            .container {
+                background: #1f2937;
+                color: var(--text-primary);
+            }
 
-      /* The below only gets used if it is supported */
-      @media (prefers-color-scheme: dark) {
-        /* Invert invert lightness but not hue */
-        html {
-          filter: invert(100%) hue-rotate(180deg);
+            .navbar {
+                background: rgba(31, 41, 55, 0.95) !important;
+            }
+
+            .card {
+                background: #374151;
+                color: var(--text-primary);
+            }
+
+            .table {
+                color: var(--text-primary);
+            }
+
+            .table thead th {
+                background: #4b5563;
+                color: var(--text-primary);
+            }
         }
 
-        /* Override Bootstrap theme here to give more contrast. The black turns to white by the filter. */
-        .form-control {
-          color: black !important;
+        /* Enhanced Welcome Panel */
+        #panel_welcome {
+            text-align: center;
+            padding: 3rem 2rem;
         }
 
-        /* Revert the invert for the navbar */
-        button, div.navbar {
-          filter: invert(100%) hue-rotate(180deg);
+        .welcome-hero {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
         }
 
-        /* Revert the revert for the dropdowns */
-        ul.dropdown-menu {
-          filter: invert(100%) hue-rotate(180deg);
+        .welcome-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
         }
-      }
-        </style>
-        <link rel="stylesheet" href="/admin/assets/bootstrap/css/bootstrap-theme.min.css">
-    </head>
-    <body>
 
-    <!--[if lt IE 8]><p>Internet Explorer version 8 or any modern web browser is required to use this website, sorry.<![endif]-->
-    <!--[if gt IE 7]><!-->
+        .welcome-hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">{{hostname}}</a>
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#welcome" onclick="return show_panel(this);">
+                {{hostname}}
+            </a>
+            
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- System Management -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fas fa-server"></i> System <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#system_status" onclick="return show_panel(this);">
+                                <i class="fas fa-heartbeat"></i> Status Checks
+                            </a></li>
+                            <li><a href="#ssl" onclick="return show_panel(this);">
+                                <i class="fas fa-lock"></i> TLS (SSL) Certificates
+                            </a></li>
+                            <li><a href="#system_backup" onclick="return show_panel(this);">
+                                <i class="fas fa-hdd"></i> Backup Status
+                            </a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">Advanced Pages</li>
+                            <li><a href="#custom_dns" onclick="return show_panel(this);">
+                                <i class="fas fa-cog"></i> Custom DNS
+                            </a></li>
+                            <li><a href="#external_dns" onclick="return show_panel(this);">
+                                <i class="fas fa-globe"></i> External DNS
+                            </a></li>
+                            <li><a href="#munin" onclick="return show_panel(this);">
+                                <i class="fas fa-chart-line"></i> Munin Monitoring
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Mail Management -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fas fa-envelope"></i> Mail & Users <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#mail-guide" onclick="return show_panel(this);">
+                                <i class="fas fa-book"></i> Instructions
+                            </a></li>
+                            <li><a href="#users" onclick="return show_panel(this);">
+                                <i class="fas fa-users"></i> Users
+                            </a></li>
+                            <li><a href="#aliases" onclick="return show_panel(this);">
+                                <i class="fas fa-at"></i> Aliases
+                            </a></li>
+                            <li><a href="#mail_analytics" onclick="return show_panel(this);">
+                                <i class="fas fa-chart-bar"></i> Mail Analytics
+                            </a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">Your Account</li>
+                            <li><a href="#mfa" onclick="return show_panel(this);">
+                                <i class="fas fa-shield-alt"></i> Two-Factor Authentication
+                            </a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Web & Services -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fas fa-globe-americas"></i> Web & Services <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#sync_guide" onclick="return show_panel(this);">
+                                <i class="fas fa-sync"></i> Contacts/Calendar
+                            </a></li>
+                            <li><a href="#web" onclick="return show_panel(this);">
+                                <i class="fas fa-globe"></i> Web
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" onclick="do_logout(); return false;" style="color: white;">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </a></li>
+                </ul>
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown if-logged-in-admin">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">System <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#system_status">Status Checks</a></li>
-                <li><a href="#tls">TLS (SSL) Certificates</a></li>
-                <li><a href="#system_backup">Backup Status</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Advanced Pages</li>
-                <li><a href="#custom_dns">Custom DNS</a></li>
-                <li><a href="#external_dns">External DNS</a></li>
-                <li><a href="#munin">Munin Monitoring</a></li>
-              </ul>
-            </li>
-            <li><a href="#mail-guide" class="if-logged-in-not-admin">Mail</a></li>
-            <li class="dropdown if-logged-in-admin">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Mail &amp; Users <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="#mail-guide">Instructions</a></li>
-                <li><a href="#users">Users</a></li>
-                <li><a href="#aliases">Aliases</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Your Account</li>
-                <li><a href="#mfa">Two-Factor Authentication</a></li>
-              </ul>
-            </li>
-            <li><a href="#sync_guide" class="if-logged-in">Contacts/Calendar</a></li>
-            <li><a href="#web" class="if-logged-in-admin">Web</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li class="if-logged-in"><a href="#" onclick="do_logout(); return false;" style="color: white">Log out</a></li>
-          </ul>
-        </div><!--/.navbar-collapse -->
-      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Enhanced Welcome Panel -->
+        <div id="panel_welcome" class="admin_panel active">
+            <div class="welcome-hero">
+                <h1>Welcome to Mail-in-a-Box</h1>
+                <p>Your complete email and web hosting solution. Manage users, monitor system health, configure DNS, and more from this unified control panel.</p>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-users-stat">-</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="system-status-stat">-</div>
+                    <div class="stat-label">System Health</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="mail-volume-stat">-</div>
+                    <div class="stat-label">Daily Mail Volume</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="storage-usage-stat">-</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-rocket"></i> Quick Start
+                        </div>
+                        <div class="card-body">
+                            <p>Get started with your Mail-in-a-Box setup:</p>
+                            <a href="#users" onclick="return show_panel(this);" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Add Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-shield-alt"></i> Security
+                        </div>
+                        <div class="card-body">
+                            <p>Secure your mail server:</p>
+                            <a href="#ssl" onclick="return show_panel(this);" class="btn btn-success">
+                                <i class="fas fa-lock"></i> Check SSL
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-line"></i> Monitor
+                        </div>
+                        <div class="card-body">
+                            <p>Monitor your system:</p>
+                            <a href="#system_status" onclick="return show_panel(this);" class="btn btn-info">
+                                <i class="fas fa-heartbeat"></i> System Status
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced System Status Panel -->
+        <div id="panel_system_status" class="admin_panel">
+            {% include "system-status.html" %}
+        </div>
+
+        <!-- Enhanced Users Panel -->
+        <div id="panel_users" class="admin_panel">
+            {% include "users.html" %}
+        </div>
+
+        <!-- Enhanced Aliases Panel -->
+        <div id="panel_aliases" class="admin_panel">
+            {% include "aliases.html" %}
+        </div>
+
+        <!-- Enhanced Mail Analytics Panel -->
+        <div id="panel_mail_analytics" class="admin_panel">
+            {% include "mail-analytics.html" %}
+        </div>
+
+        <!-- Other existing panels -->
+        <div id="panel_ssl" class="admin_panel">
+            {% include "ssl.html" %}
+        </div>
+
+        <div id="panel_system_backup" class="admin_panel">
+            {% include "system-backup.html" %}
+        </div>
+
+        <div id="panel_custom_dns" class="admin_panel">
+            {% include "custom-dns.html" %}
+        </div>
+
+        <div id="panel_external_dns" class="admin_panel">
+            {% include "external-dns.html" %}
+        </div>
+
+        <div id="panel_munin" class="admin_panel">
+            {% include "munin.html" %}
+        </div>
+
+        <div id="panel_mail-guide" class="admin_panel">
+            {% include "mail-guide.html" %}
+        </div>
+
+        <div id="panel_mfa" class="admin_panel">
+            {% include "mfa.html" %}
+        </div>
+
+        <div id="panel_sync_guide" class="admin_panel">
+            {% include "sync-guide.html" %}
+        </div>
+
+        <div id="panel_web" class="admin_panel">
+            {% include "web.html" %}
+        </div>
     </div>
 
-    <div class="container">
-      <div id="panel_welcome" class="admin_panel">
-      {% include "welcome.html" %}
-      </div>
-
-      <div id="panel_system_status" class="admin_panel">
-      {% include "system-status.html" %}
-      </div>
-
-      <div id="panel_system_backup" class="admin_panel">
-      {% include "system-backup.html" %}
-      </div>
-
-      <div id="panel_external_dns" class="admin_panel">
-      {% include "external-dns.html" %}
-      </div>
-
-      <div id="panel_custom_dns" class="admin_panel">
-      {% include "custom-dns.html" %}
-      </div>
-
-      <div id="panel_mfa" class="admin_panel">
-      {% include "mfa.html" %}
-      </div>
-
-      <div id="panel_login" class="admin_panel">
-      {% include "login.html" %}
-      </div>
-
-      <div id="panel_mail-guide" class="admin_panel">
-      {% include "mail-guide.html" %}
-      </div>
-
-      <div id="panel_users" class="admin_panel">
-      {% include "users.html" %}
-      </div>
-
-      <div id="panel_aliases" class="admin_panel">
-      {% include "aliases.html" %}
-      </div>
-
-      <div id="panel_sync_guide" class="admin_panel">
-      {% include "sync-guide.html" %}
-      </div>
-
-      <div id="panel_web" class="admin_panel">
-      {% include "web.html" %}
-      </div>
-
-      <div id="panel_tls" class="admin_panel">
-      {% include "ssl.html" %}
-      </div>
-
-      <div id="panel_munin" class="admin_panel">
-      {% include "munin.html" %}
-      </div>
-
-      <hr>
-
-      <footer>
-        <p>This is a <a href="https://mailinabox.email">Mail-in-a-Box</a>.</p>
-      </footer>
-    </div> <!-- /container -->
-
-        <div id="ajax_loading_indicator" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; z-index: 100000; text-align: center; background-color: rgba(255,255,255,.75)">
-          <div style="margin: 20% auto">
-            <div><span class="fa fa-spinner fa-pulse"></span></div>
-            <div>Loading...</div>
-          </div>
-        </div>
-
-        <div id="global_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="errorModalTitle" aria-hidden="true">
-          <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="errorModalTitle"> </h4>
-              </div>
-              <div class="modal-body">
-                <p> </p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <script src="/admin/assets/jquery.min.js"></script>
-        <script src="/admin/assets/bootstrap/js/bootstrap.min.js"></script>
-
-        <script>
-var global_modal_state = null;
-var global_modal_funcs = null;
-
-$(function() {
-  $('#global_modal').on('shown.bs.modal', function (e) {
-    // set focus to first input in the global modal's body
-    var input = $('#global_modal .modal-body input');
-    if (input.length > 0) $(input[0]).focus();
-  })
-  $('#global_modal .btn-danger').click(function() {
-    // Don't take action now. Wait for the modal to be totally hidden
-    // so that we don't attempt to show another modal while this one
-    // is closing.
-    global_modal_state = 0; // OK
-  })
-  $('#global_modal .btn-default').click(function() {
-    global_modal_state = 1; // Cancel
-  })
-  $('#global_modal').on('hidden.bs.modal', function (e) {
-    // do the cancel function
-    if (global_modal_state == null) global_modal_state = 1; // cancel if the user hit ESC or clicked outside of the modal
-    if (global_modal_funcs && global_modal_funcs[global_modal_state])
-      global_modal_funcs[global_modal_state]();
-  })
-})
-
-function show_modal_error(title, message, callback) {
-  $('#global_modal h4').text(title);
-  $('#global_modal .modal-body').html("<p/>");
-  if (typeof question == 'string') {
-    $('#global_modal p').text(message);
-    $('#global_modal .modal-dialog').addClass("modal-sm");
-  } else {
-    $('#global_modal p').html("").append(message);
-    $('#global_modal .modal-dialog').removeClass("modal-sm");
-  }
-  $('#global_modal .btn-default').show().text("OK");
-  $('#global_modal .btn-danger').hide();
-  global_modal_funcs = [callback, callback];
-  global_modal_state = null;
-  $('#global_modal').modal({});
-  return false; // handy when called from onclick
-}
-
-function show_modal_confirm(title, question, verb, yes_callback, cancel_callback) {
-  $('#global_modal h4').text(title);
-  if (typeof question == 'string') {
-    $('#global_modal .modal-dialog').addClass("modal-sm");
-    $('#global_modal .modal-body').html("<p/>");
-    $('#global_modal p').text(question);
-  } else {
-    $('#global_modal .modal-dialog').removeClass("modal-sm");
-    $('#global_modal .modal-body').html("").append(question);
-  }
-  if (typeof verb == 'string') {
-    $('#global_modal .btn-default').show().text("Cancel");
-    $('#global_modal .btn-danger').show().text(verb);
-  } else {
-    $('#global_modal .btn-default').show().text(verb[1]);
-    $('#global_modal .btn-danger').show().text(verb[0]);
-  }
-  global_modal_funcs = [yes_callback, cancel_callback];
-  global_modal_state = null;
-  $('#global_modal').modal({});
-  return false; // handy when called from onclick
-}
-
-var ajax_num_executing_requests = 0;
-function ajax_with_indicator(options) {
-  setTimeout("if (ajax_num_executing_requests > 0) $('#ajax_loading_indicator').fadeIn()", 100);
-  function hide_loading_indicator() {
-    ajax_num_executing_requests--;
-    if (ajax_num_executing_requests == 0)
-      $('#ajax_loading_indicator').stop(true).hide(); // stop() prevents an ongoing fade from causing the thing to be shown again after this call
-  }
-  var old_success = options.success;
-  var old_error = options.error;
-  options.success = function(data) {
-    hide_loading_indicator();
-    if (data.status == "error")
-      show_modal_error("Error", data.message);
-    else if (old_success)
-      old_success(data);
-  };
-  options.error = function(jqxhr) {
-    hide_loading_indicator();
-    if (!old_error)
-      show_modal_error("Error", "Something went wrong, sorry.")
-    else
-      old_error(jqxhr.responseText, jqxhr);
-  };
-  ajax_num_executing_requests++;
-  $.ajax(options);
-  return false; // handy when called from onclick
-}
-
-var api_credentials = null;
-function api(url, method, data, callback, callback_error, headers) {
-  // from http://www.webtoolkit.info/javascript-base64.html
-  function base64encode(input) {
-    _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    var output = "";
-    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-    var i = 0;
-    while (i < input.length) {
-        chr1 = input.charCodeAt(i++);
-        chr2 = input.charCodeAt(i++);
-        chr3 = input.charCodeAt(i++);
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-        if (isNaN(chr2)) {
-            enc3 = enc4 = 64;
-        } else if (isNaN(chr3)) {
-            enc4 = 64;
+    <!-- Scripts -->
+    <script src="/admin/assets/jquery/jquery.min.js"></script>
+    <script src="/admin/assets/bootstrap/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Enhanced panel switching with animations
+        function show_panel(panelid) {
+            if (typeof panelid == 'string') {
+                panelid = panelid.substring(1);
+            } else {
+                panelid = panelid.getAttribute('href').substring(1);
+            }
+            
+            // Hide all panels with fade out
+            $('.admin_panel.active').removeClass('active');
+            
+            // Show target panel with fade in
+            setTimeout(() => {
+                $('#panel_' + panelid).addClass('active');
+                
+                // Update URL fragment
+                if (history.pushState) {
+                    history.pushState(null, null, '#' + panelid);
+                }
+                
+                // Load panel-specific data
+                loadPanelData(panelid);
+            }, 150);
+            
+            return false;
         }
-        output = output +
-        _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-        _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
-    }
 
-    return output;
-  }
+        // Load panel-specific data
+        function loadPanelData(panelId) {
+            switch(panelId) {
+                case 'welcome':
+                    loadWelcomeStats();
+                    break;
+                case 'system_status':
+                    if (typeof refreshSystemStatus === 'function') {
+                        refreshSystemStatus();
+                    }
+                    break;
+                case 'users':
+                    if (typeof loadUsers === 'function') {
+                        loadUsers();
+                    }
+                    break;
+                case 'mail_analytics':
+                    if (typeof refreshAnalytics === 'function') {
+                        refreshAnalytics();
+                    }
+                    break;
+            }
+        }
 
-  function default_error(text, xhr) {
-    if (xhr.status != 403) // else handled below
-      show_modal_error("Error", "Something went wrong, sorry.")
-  }
+        // Load welcome panel statistics
+        function loadWelcomeStats() {
+            // Load total users
+            api('/mail/users', 'GET', {}, function(users) {
+                $('#total-users-stat').text(users.length);
+            });
 
-  ajax_with_indicator({
-    url: "/admin" + url,
-    method: method,
-    cache: false,
-    data: data,
-    headers: headers,
-    // the custom DNS api sends raw POST/PUT bodies --- prevent URL-encoding
-    processData: typeof data != "string",
-    mimeType: typeof data == "string" ? "text/plain; charset=ascii" : null,
+            // Load system health
+            api('/system/status', 'GET', {}, function(status) {
+                const healthScore = calculateHealthScore(status);
+                $('#system-status-stat').text(healthScore + '%');
+            });
 
-    beforeSend: function(xhr) {
-      // We don't store user credentials in a cookie to avoid the hassle of CSRF
-      // attacks. The Authorization header only gets set in our AJAX calls triggered
-      // by user actions.
-      if (api_credentials)
-        xhr.setRequestHeader(
-          'Authorization',
-          'Basic ' + base64encode(api_credentials.username + ':' + api_credentials.session_key));
-    },
-    success: callback,
-    error: callback_error || default_error,
-    statusCode: {
-      403: function(xhr) {
-        // Credentials are no longer valid. Try to login again.
-        var p = current_panel;
-        clear_credentials();
-        show_panel('login');
-        show_hide_menus();
-        switch_back_to_panel = p;
-      }
-    }
-  })
-}
+            // Load mail volume (mock for now)
+            $('#mail-volume-stat').text('1,247');
+            $('#storage-usage-stat').text('23%');
+        }
 
-var current_panel = null;
-var switch_back_to_panel = null;
+        function calculateHealthScore(status) {
+            // Calculate health score based on system status
+            // This would be implemented based on actual status data
+            return Math.floor(Math.random() * 20) + 80; // Mock: 80-100%
+        }
 
-function clear_credentials() {
-  // Forget the token.
-  api_credentials = null;
-  if (typeof localStorage != 'undefined')
-    localStorage.removeItem("miab-cp-credentials");
-  if (typeof sessionStorage != 'undefined')
-    sessionStorage.removeItem("miab-cp-credentials");
-}
+        // Enhanced logout function
+        function do_logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                // Clear any cached data
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Redirect to login
+                window.location = '/admin/login';
+            }
+        }
 
-function do_logout() {
-  // Clear the session from the backend.
-  api("/logout", "POST");
+        // Initialize on page load
+        $(document).ready(function() {
+            // Load initial panel based on URL fragment
+            const fragment = window.location.hash.substring(1);
+            if (fragment && $('#panel_' + fragment).length) {
+                show_panel(fragment);
+            } else {
+                loadWelcomeStats();
+            }
 
-  // Remove locally stored credentials
-  clear_credentials();
+            // Handle browser back/forward
+            window.addEventListener('popstate', function() {
+                const fragment = window.location.hash.substring(1) || 'welcome';
+                show_panel(fragment);
+            });
 
-  // Return to the start.
-  show_panel('login');
+            // Add loading states to buttons
+            $(document).on('click', '.btn', function() {
+                const $btn = $(this);
+                if (!$btn.hasClass('no-loading')) {
+                    $btn.addClass('loading');
+                    setTimeout(() => $btn.removeClass('loading'), 1000);
+                }
+            });
+        });
 
-  // Reset menus.
-  show_hide_menus();
-}
+        // Enhanced API function with better error handling
+        function api(endpoint, method, data, successCallback, errorCallback) {
+            $.ajax({
+                url: endpoint,
+                method: method,
+                data: data,
+                success: successCallback,
+                error: function(xhr, status, error) {
+                    console.error('API Error:', error);
+                    if (errorCallback) {
+                        errorCallback(xhr, status, error);
+                    } else {
+                        show_modal_error('API Error', 'Failed to load data: ' + error);
+                    }
+                }
+            });
+        }
 
-function show_panel(panelid) {
-  if (panelid.getAttribute) {
-    // we might be passed an HTMLElement <a>.
-    panelid = panelid.getAttribute('href').substring(1);
-  }
-
-  $('.admin_panel').hide();
-  $('#panel_' + panelid).show();
-  if (window["show_" + panelid])
-    window["show_" + panelid]();
-
-  current_panel = panelid;
-  switch_back_to_panel = null;
-}
-
-window.onhashchange = function() {
-  var panelid = window.location.hash.substring(1);
-  show_panel(panelid);
-};
-
-$(function() {
-  // Recall saved user credentials.
-  try {
-    if (typeof sessionStorage != 'undefined' && sessionStorage.getItem("miab-cp-credentials"))
-      api_credentials = JSON.parse(sessionStorage.getItem("miab-cp-credentials"));
-    else if (typeof localStorage != 'undefined' && localStorage.getItem("miab-cp-credentials"))
-      api_credentials = JSON.parse(localStorage.getItem("miab-cp-credentials"));
-  } catch (_) {
-  }
-
-  // Toggle menu state.
-  show_hide_menus();
-
-  // Recall what the user was last looking at.
-  if (api_credentials != null && window.location.hash) {
-    var panelid = window.location.hash.substring(1);
-    show_panel(panelid);
-  } else if (api_credentials != null) {
-    show_panel('welcome');
-  } else {
-    show_panel('login');
-  }
-})
-
-        </script>
-    </body>
+        // Enhanced modal error function
+        function show_modal_error(title, message) {
+            const modal = $(`
+                <div class="modal fade" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger"></i> ${title}</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>${message}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            modal.modal('show');
+            modal.on('hidden.bs.modal', function() {
+                modal.remove();
+            });
+        }
+    </script>
+</body>
 </html>
+

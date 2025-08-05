@@ -1,0 +1,852 @@
+<h2><i class="fas fa-users"></i> User Management</h2>
+
+<style>
+    /* Enhanced Users Panel Styling */
+    .users-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .users-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        position: relative;
+        min-width: 300px;
+    }
+
+    .search-box input {
+        padding-left: 2.5rem;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .filter-dropdown {
+        min-width: 150px;
+    }
+
+    .users-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        text-align: center;
+        box-shadow: var(--shadow-md);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .users-table-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: var(--light-bg);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bulk-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .user-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 150px 120px 100px 150px;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+
+    .user-row:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+
+    .user-row:last-child {
+        border-bottom: none;
+    }
+
+    .user-checkbox {
+        justify-self: center;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .user-details h5 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .user-details p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .quota-bar {
+        width: 100%;
+        height: 8px;
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.25rem;
+    }
+
+    .quota-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .quota-low { background-color: var(--success-color); }
+    .quota-medium { background-color: var(--warning-color); }
+    .quota-high { background-color: var(--danger-color); }
+
+    .user-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .badge-admin {
+        background-color: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+    }
+
+    .badge-user {
+        background-color: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+    }
+
+    .user-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .user-form {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    .user-form.active {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .domain-filter {
+        background: var(--light-bg);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .domain-tabs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .domain-tab {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        background: white;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .domain-tab.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .domain-tab:hover:not(.active) {
+        background: rgba(37, 99, 235, 0.1);
+        border-color: var(--primary-color);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .page-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        background: white;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .page-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .page-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<!-- Users Management Header -->
+<div class="users-header">
+    <div>
+        <p class="text-muted">Manage user accounts, quotas, and permissions for your mail server.</p>
+    </div>
+    <div class="users-controls">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" class="form-control" id="user-search" placeholder="Search users...">
+        </div>
+        <select class="form-control filter-dropdown" id="status-filter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+        <button class="btn btn-primary" onclick="toggleUserForm()">
+            <i class="fas fa-user-plus"></i> Add User
+        </button>
+    </div>
+</div>
+
+<!-- User Statistics -->
+<div class="users-stats">
+    <div class="stat-card">
+        <div class="stat-number" id="total-users">0</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="active-users">0</div>
+        <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="storage-used">0 GB</div>
+        <div class="stat-label">Storage Used</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="admin-users">0</div>
+        <div class="stat-label">Admin Users</div>
+    </div>
+</div>
+
+<!-- Domain Filter -->
+<div class="domain-filter">
+    <h6><i class="fas fa-filter"></i> Filter by Domain</h6>
+    <div class="domain-tabs" id="domain-tabs">
+        <div class="domain-tab active" data-domain="">All Domains</div>
+        <!-- Domain tabs will be populated dynamically -->
+    </div>
+</div>
+
+<!-- Add/Edit User Form -->
+<div class="user-form" id="user-form">
+    <h4><i class="fas fa-user-edit"></i> <span id="form-title">Add New User</span></h4>
+    <form id="user-form-element">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user-email">Email Address *</label>
+                <input type="email" class="form-control" id="user-email" required>
+            </div>
+            <div class="form-group">
+                <label for="user-password">Password *</label>
+                <input type="password" class="form-control" id="user-password" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user-quota">Quota (MB)</label>
+                <input type="number" class="form-control" id="user-quota" placeholder="Leave empty for unlimited">
+            </div>
+            <div class="form-group">
+                <label for="user-privileges">Privileges</label>
+                <select class="form-control" id="user-privileges">
+                    <option value="">Regular User</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="send-welcome">
+                <label class="form-check-label" for="send-welcome">
+                    Send welcome email with login instructions
+                </label>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> <span id="form-submit-text">Create User</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="toggleUserForm()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Users Table -->
+<div class="users-table-container">
+    <div class="table-header">
+        <div class="bulk-actions">
+            <input type="checkbox" id="select-all-users" onchange="toggleAllUsers(this)">
+            <label for="select-all-users" class="ml-2">Select All</label>
+            <div class="ml-3" id="bulk-actions" style="display: none;">
+                <button class="btn btn-sm btn-warning" onclick="bulkResetPasswords()">
+                    <i class="fas fa-key"></i> Reset Passwords
+                </button>
+                <button class="btn btn-sm btn-info" onclick="bulkUpdateQuotas()">
+                    <i class="fas fa-hdd"></i> Update Quotas
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="bulkDeleteUsers()">
+                    <i class="fas fa-trash"></i> Delete Selected
+                </button>
+            </div>
+        </div>
+        <div>
+            <span id="users-count">0 users</span>
+        </div>
+    </div>
+    
+    <!-- Table Headers -->
+    <div class="user-row" style="background: var(--light-bg); font-weight: 600;">
+        <div></div>
+        <div>User</div>
+        <div>Storage Usage</div>
+        <div>Last Login</div>
+        <div>Status</div>
+        <div>Actions</div>
+    </div>
+    
+    <!-- Users List -->
+    <div id="users-list">
+        <!-- Users will be populated here -->
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination" id="users-pagination">
+    <!-- Pagination will be populated here -->
+</div>
+
+<script>
+    let currentUsers = [];
+    let filteredUsers = [];
+    let currentPage = 1;
+    let usersPerPage = 10;
+    let editingUser = null;
+
+    // Initialize users panel
+    function loadUsers() {
+        showLoading();
+        api('/mail/users', 'GET', {}, function(users) {
+            currentUsers = users;
+            processUsers();
+            hideLoading();
+        });
+    }
+
+    function processUsers() {
+        // Calculate statistics
+        updateUserStats();
+        
+        // Update domain filter
+        updateDomainFilter();
+        
+        // Apply current filters
+        applyFilters();
+        
+        // Render users
+        renderUsers();
+        
+        // Update pagination
+        updatePagination();
+    }
+
+    function updateUserStats() {
+        const totalUsers = currentUsers.length;
+        const activeUsers = currentUsers.filter(u => u.status === 'active').length;
+        const adminUsers = currentUsers.filter(u => u.privileges === 'admin').length;
+        const totalStorage = currentUsers.reduce((sum, u) => sum + (u.mailbox_size || 0), 0);
+
+        $('#total-users').text(totalUsers);
+        $('#active-users').text(activeUsers);
+        $('#admin-users').text(adminUsers);
+        $('#storage-used').text((totalStorage / (1024 * 1024 * 1024)).toFixed(1) + ' GB');
+    }
+
+    function updateDomainFilter() {
+        const domains = [...new Set(currentUsers.map(u => u.email.split('@')[1]))];
+        const domainTabs = $('#domain-tabs');
+        
+        // Keep "All Domains" tab and add domain-specific tabs
+        domainTabs.find('.domain-tab:not(:first)').remove();
+        
+        domains.forEach(domain => {
+            const tab = $(`<div class="domain-tab" data-domain="${domain}">${domain}</div>`);
+            tab.on('click', function() {
+                $('.domain-tab').removeClass('active');
+                $(this).addClass('active');
+                applyFilters();
+            });
+            domainTabs.append(tab);
+        });
+    }
+
+    function applyFilters() {
+        const searchTerm = $('#user-search').val().toLowerCase();
+        const statusFilter = $('#status-filter').val();
+        const domainFilter = $('.domain-tab.active').data('domain');
+
+        filteredUsers = currentUsers.filter(user => {
+            const matchesSearch = !searchTerm || 
+                user.email.toLowerCase().includes(searchTerm) ||
+                (user.name && user.name.toLowerCase().includes(searchTerm));
+            
+            const matchesStatus = !statusFilter || user.status === statusFilter;
+            
+            const matchesDomain = !domainFilter || user.email.split('@')[1] === domainFilter;
+
+            return matchesSearch && matchesStatus && matchesDomain;
+        });
+
+        currentPage = 1; // Reset to first page when filtering
+        renderUsers();
+        updatePagination();
+    }
+
+    function renderUsers() {
+        const startIndex = (currentPage - 1) * usersPerPage;
+        const endIndex = startIndex + usersPerPage;
+        const pageUsers = filteredUsers.slice(startIndex, endIndex);
+
+        const usersList = $('#users-list');
+        usersList.empty();
+
+        pageUsers.forEach(user => {
+            const userRow = createUserRow(user);
+            usersList.append(userRow);
+        });
+
+        $('#users-count').text(`${filteredUsers.length} users`);
+    }
+
+    function createUserRow(user) {
+        const quotaPercentage = user.quota > 0 ? (user.mailbox_size / user.quota) * 100 : 0;
+        const quotaClass = quotaPercentage > 80 ? 'quota-high' : quotaPercentage > 60 ? 'quota-medium' : 'quota-low';
+        
+        const initials = user.email.substring(0, 2).toUpperCase();
+        const lastLogin = user.last_login ? formatDate(user.last_login) : 'Never';
+        
+        return $(`
+            <div class="user-row">
+                <div class="user-checkbox">
+                    <input type="checkbox" class="user-select" value="${user.email}" onchange="updateBulkActions()">
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-details">
+                        <h5>${user.email}</h5>
+                        <p>${user.name || 'No display name'}</p>
+                    </div>
+                </div>
+                <div>
+                    <div>${formatBytes(user.mailbox_size || 0)} / ${user.quota ? formatBytes(user.quota) : '∞'}</div>
+                    <div class="quota-bar">
+                        <div class="quota-fill ${quotaClass}" style="width: ${Math.min(quotaPercentage, 100)}%"></div>
+                    </div>
+                </div>
+                <div>${lastLogin}</div>
+                <div class="user-badges">
+                    <span class="badge ${user.privileges === 'admin' ? 'badge-admin' : 'badge-user'}">
+                        ${user.privileges === 'admin' ? 'Admin' : 'User'}
+                    </span>
+                </div>
+                <div class="user-actions">
+                    <button class="btn btn-sm btn-primary" onclick="editUser('${user.email}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="resetUserPassword('${user.email}')">
+                        <i class="fas fa-key"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.email}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `);
+    }
+
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+        const pagination = $('#users-pagination');
+        pagination.empty();
+
+        if (totalPages <= 1) return;
+
+        // Previous button
+        const prevBtn = $(`<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+        </button>`);
+        prevBtn.on('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUsers();
+                updatePagination();
+            }
+        });
+        pagination.append(prevBtn);
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                const pageBtn = $(`<button class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`);
+                pageBtn.on('click', () => {
+                    currentPage = i;
+                    renderUsers();
+                    updatePagination();
+                });
+                pagination.append(pageBtn);
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                pagination.append('<span>...</span>');
+            }
+        }
+
+        // Next button
+        const nextBtn = $(`<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+        </button>`);
+        nextBtn.on('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUsers();
+                updatePagination();
+            }
+        });
+        pagination.append(nextBtn);
+    }
+
+    // User form functions
+    function toggleUserForm() {
+        const form = $('#user-form');
+        if (form.hasClass('active')) {
+            form.removeClass('active');
+            resetUserForm();
+        } else {
+            form.addClass('active');
+        }
+    }
+
+    function resetUserForm() {
+        $('#user-form-element')[0].reset();
+        editingUser = null;
+        $('#form-title').text('Add New User');
+        $('#form-submit-text').text('Create User');
+    }
+
+    function editUser(email) {
+        const user = currentUsers.find(u => u.email === email);
+        if (!user) return;
+
+        editingUser = user;
+        $('#user-email').val(user.email);
+        $('#user-quota').val(user.quota || '');
+        $('#user-privileges').val(user.privileges || '');
+        $('#form-title').text('Edit User');
+        $('#form-submit-text').text('Update User');
+        
+        toggleUserForm();
+    }
+
+    // Bulk actions
+    function toggleAllUsers(checkbox) {
+        $('.user-select').prop('checked', checkbox.checked);
+        updateBulkActions();
+    }
+
+    function updateBulkActions() {
+        const selectedUsers = $('.user-select:checked').length;
+        if (selectedUsers > 0) {
+            $('#bulk-actions').show();
+        } else {
+            $('#bulk-actions').hide();
+        }
+    }
+
+    function bulkResetPasswords() {
+        const selectedEmails = $('.user-select:checked').map(function() {
+            return this.value;
+        }).get();
+
+        if (selectedEmails.length === 0) return;
+
+        if (confirm(`Reset passwords for ${selectedEmails.length} users?`)) {
+            // Implementation would call API to reset passwords
+            alert('Password reset functionality would be implemented here.');
+        }
+    }
+
+    function bulkUpdateQuotas() {
+        const selectedEmails = $('.user-select:checked').map(function() {
+            return this.value;
+        }).get();
+
+        if (selectedEmails.length === 0) return;
+
+        const newQuota = prompt('Enter new quota in MB (leave empty for unlimited):');
+        if (newQuota !== null) {
+            // Implementation would call API to update quotas
+            alert('Bulk quota update functionality would be implemented here.');
+        }
+    }
+
+    function bulkDeleteUsers() {
+        const selectedEmails = $('.user-select:checked').map(function() {
+            return this.value;
+        }).get();
+
+        if (selectedEmails.length === 0) return;
+
+        if (confirm(`Delete ${selectedEmails.length} users? This action cannot be undone.`)) {
+            // Implementation would call API to delete users
+            alert('Bulk delete functionality would be implemented here.');
+        }
+    }
+
+    // Individual user actions
+    function resetUserPassword(email) {
+        if (confirm(`Reset password for ${email}?`)) {
+            // Implementation would call API to reset password
+            alert('Password reset functionality would be implemented here.');
+        }
+    }
+
+    function deleteUser(email) {
+        if (confirm(`Delete user ${email}? This action cannot be undone.`)) {
+            // Implementation would call API to delete user
+            alert('Delete user functionality would be implemented here.');
+        }
+    }
+
+    // Utility functions
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
+
+    function showLoading() {
+        $('#users-list').html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading users...</div>');
+    }
+
+    function hideLoading() {
+        // Loading will be hidden when users are rendered
+    }
+
+    // Event listeners
+    $(document).ready(function() {
+        // Search functionality
+        $('#user-search').on('input', debounce(applyFilters, 300));
+        
+        // Status filter
+        $('#status-filter').on('change', applyFilters);
+        
+        // Domain filter (handled in updateDomainFilter)
+        $('.domain-tab:first').on('click', function() {
+            $('.domain-tab').removeClass('active');
+            $(this).addClass('active');
+            applyFilters();
+        });
+
+        // Form submission
+        $('#user-form-element').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                email: $('#user-email').val(),
+                password: $('#user-password').val(),
+                quota: $('#user-quota').val() || null,
+                privileges: $('#user-privileges').val() || null,
+                send_welcome: $('#send-welcome').is(':checked')
+            };
+
+            if (editingUser) {
+                // Update existing user
+                api('/mail/users/' + editingUser.email, 'PUT', formData, function() {
+                    toggleUserForm();
+                    loadUsers();
+                    show_modal_success('User Updated', 'User has been updated successfully.');
+                });
+            } else {
+                // Create new user
+                api('/mail/users', 'POST', formData, function() {
+                    toggleUserForm();
+                    loadUsers();
+                    show_modal_success('User Created', 'User has been created successfully.');
+                });
+            }
+        });
+    });
+
+    // Debounce function for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Mock data for demonstration
+    function loadMockUsers() {
+        const mockUsers = [
+            {
+                email: 'admin@example.com',
+                name: 'Administrator',
+                mailbox_size: 1024 * 1024 * 500, // 500 MB
+                quota: 1024 * 1024 * 1024, // 1 GB
+                privileges: 'admin',
+                status: 'active',
+                last_login: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                email: 'user1@example.com',
+                name: 'John Doe',
+                mailbox_size: 1024 * 1024 * 250, // 250 MB
+                quota: 1024 * 1024 * 500, // 500 MB
+                privileges: '',
+                status: 'active',
+                last_login: new Date(Date.now() - 3600000).toISOString()
+            },
+            {
+                email: 'user2@test.com',
+                name: 'Jane Smith',
+                mailbox_size: 1024 * 1024 * 100, // 100 MB
+                quota: 1024 * 1024 * 500, // 500 MB
+                privileges: '',
+                status: 'active',
+                last_login: new Date(Date.now() - 7200000).toISOString()
+            }
+        ];
+
+        currentUsers = mockUsers;
+        processUsers();
+    }
+
+    // Load users when panel is shown
+    if (typeof loadUsers === 'undefined') {
+        // If API is not available, load mock data
+        loadMockUsers();
+    }
+</script>
+
