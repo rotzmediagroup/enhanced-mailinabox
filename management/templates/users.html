@@ -1,376 +1,1013 @@
-<h2>Users</h2>
-
-<style>
-#user_table tr.account_inactive td.address { color: #888; text-decoration: line-through; }
-#user_table .actions { margin-top: .33em; font-size: 95%; }
-#user_table .account_inactive .if_active { display: none; }
-#user_table .account_active .if_inactive { display: none; }
-#user_table .account_active.if_inactive { display: none; }
-.row-center { text-align: center; }
-</style>
-
-<h3>Add a mail user</h3>
-
-<p>Add an email address to this system. This will create a new login username/password.</p>
-
-<form class="form-inline" role="form" onsubmit="return do_add_user(); return false;">
-  <div class="form-group">
-    <label class="sr-only" for="adduserEmail">Email address</label>
-    <input type="email" class="form-control" id="adduserEmail" placeholder="Email Address">
-  </div>
-  <div class="form-group">
-    <label class="sr-only" for="adduserPassword">Password</label>
-    <input type="password" class="form-control" id="adduserPassword" placeholder="Password">
-  </div>
-  <div class="form-group">
-    <select class="form-control" id="adduserPrivs">
-      <option value="">Normal User</option>
-      <option value="admin">Administrator</option>
-    </select>
-  </div>
-  <div class="form-group">
-      <label class="sr-only" for="adduserQuota">Quota</label>
-      <input type="text" class="form-control" id="adduserQuota" placeholder="Quota" style="width:5em;" value="0">
-  </div>
-  <button type="submit" class="btn btn-primary">Add User</button>
-</form>
-<ul style="margin-top: 1em; padding-left: 1.5em; font-size: 90%;">
-  <li>Passwords must be at least eight characters consisting of English letters and numbers only. For best results, <a href="#" onclick="return generate_random_password()">generate a random password</a>.</li>
-  <li>Use <a href="#aliases">aliases</a> to create email addresses that forward to existing accounts.</li>
-  <li>Administrators get access to this control panel.</li>
-  <li>User accounts cannot contain any international (non-ASCII) characters, but <a href="#aliases">aliases</a> can.</li>
-  <li>Quotas may not contain any spaces, commas or decimal points. Suffixes of G (gigabytes) and M (megabytes) are allowed.  For unlimited storage enter 0 (zero)</li>
-</ul>
-
-<h3>Existing mail users</h3>
-<table id="user_table" class="table" style="width: auto">
-  <thead>
-    <tr>
-      <th width="35%">Email Address</th>
-      <th class="row-center">Size</th>
-      <th class="row-center">Used</th>
-      <th class="row-center">Quota</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
-<div style="display: none">
-  <table>
-  <tr id="user-template">
-    <td class='address'>
-    </td>
-    <td class="box-size row-center"></td>
-    <td class="percent row-center"></td>
-	<td class="quota row-center">
-	</td>
-    <td class='actions'>
-        <span class='privs'>
-        </span>
-
-        <span class="if_active">
-          <a href="#" onclick="users_set_quota(this); return false;" class='setquota' title="Set Quota">
-              set quota
-          </a>
-          |
-        </span>
-
-        <span class="if_active">
-          <a href="#" onclick="users_set_password(this); return false;" class='setpw' title="Set Password">
-            set password
-          </a>
-          |
-        </span>
-
-        <span class='add-privs'>
-        </span>
-
-        <a href="#" onclick="users_remove(this); return false;" class='if_active' title="Archive Account">
-          archive account
-        </a>
-    </td>
-  </tr>
-  <tr id="user-extra-template" class="if_inactive">
-    <td colspan="3" style="border: 0; padding-top: 0">
-      <div class='restore_info' style='color: #888; font-size: 90%'>To restore account, create a new account with this email address. Or to permanently delete the mailbox, delete the directory <tt></tt> on the machine.</div>
-    </td>
-  </tr>
-  </table>
-</div>
-
-<h3>Mail user API (advanced)</h3>
-
-<p>Use your box&rsquo;s mail user API to add/change/remove users from the command-line or custom services you build.</p>
-
-<p>Usage:</p>
-
-<pre>curl -X <b>VERB</b> [-d "<b>parameters</b>"] --user {email}:{password} https://{{hostname}}/admin/mail/users[<b>action</b>]</pre>
-
-<p>Brackets denote an optional argument. Please note that the POST body <code>parameters</code> must be URL-encoded.</p>
-
-<p>The email and password given to the <code>--user</code> option must be an administrative user on this system.</p>
-
-<h4 style="margin-bottom: 0">Verbs</h4>
-
-<table class="table" style="margin-top: .5em">
-<thead><th>Verb</th> <th>Action</th><th></th></thead>
-<tr><td>GET</td><td><i>(none)</i></td> <td>Returns a list of existing mail users. Adding <code>?format=json</code> to the URL will give JSON-encoded results.</td></tr>
-<tr>
-    <td>POST</td>
-    <td>/add</td>
-    <td>Adds a new mail user. Required POST-body parameters are <code>email</code> and <code>password</code>. Optional parameters: <code>privilege=admin</code> and <code>quota</code></td>
-</tr>
-<tr>
-    <td>POST</td>
-    <td>/remove</td>
-    <td>Removes a mail user. Required POST-by parameter is <code>email</code>.</td>
-</tr>
-<tr><td>POST</td><td>/privileges/add</td> <td>Used to make a mail user an admin. Required POST-body parameters are <code>email</code> and <code>privilege=admin</code>.</td></tr>
-<tr><td>POST</td><td>/privileges/remove</td> <td>Used to remove the admin privilege from a mail user. Required POST-body parameter is <code>email</code>.</td></tr>
-<tr>
-    <td>GET</td>
-    <td>/quota</td>
-    <td>Get the quota for a mail user. Required POST-body parameters are <code>email</code> and will return JSON result</td>
-</tr>
-<tr>
-    <td>POST</td>
-    <td>/quota</td>
-    <td>Set the quota for a mail user. Required POST-body parameters are <code>email</code> and <code>quota</code>.</td>
-</tr>
-</table>
-
-<h4>Examples:</h4>
-
-<p>Try these examples. For simplicity the examples omit the <code>--user me@mydomain.com:yourpassword</code> command line argument which you must fill in with your administrative email address and password.</p>
-
-<pre># Gives a JSON-encoded list of all mail users
-curl -X GET https://{{hostname}}/admin/mail/users?format=json
-
-# Adds a new email user
-curl -X POST -d "email=new_user@mydomail.com" -d "password=s3curE_pa5Sw0rD" https://{{hostname}}/admin/mail/users/add
-
-# Removes a email user
-curl -X POST -d "email=new_user@mydomail.com" https://{{hostname}}/admin/mail/users/remove
-
-# Adds admin privilege to an email user
-curl -X POST -d "email=new_user@mydomail.com" -d "privilege=admin" https://{{hostname}}/admin/mail/users/privileges/add
-
-# Removes admin privilege from an email user
-curl -X POST -d "email=new_user@mydomail.com" https://{{hostname}}/admin/mail/users/privileges/remove
-</pre>
-
-<script>
-function show_users() {
-  $('#user_table tbody').html("<tr><td colspan='2' class='text-muted'>Loading...</td></tr>")
-  api(
-    "/mail/users",
-    "GET",
-    { format: 'json' },
-    function(r) {
-      $('#user_table tbody').html("");
-      for (var i = 0; i < r.length; i++) {
-        var hdr = $("<tr><th colspan='6' style='background-color: #EEE'></th></tr>");
-        hdr.find('th').text(r[i].domain);
-        $('#user_table tbody').append(hdr);
-
-        for (var k = 0; k < r[i].users.length; k++) {
-          var user = r[i].users[k];
-
-          var n = $("#user-template").clone();
-          var n2 = $("#user-extra-template").clone();
-          n.attr('id', '');
-          n2.attr('id', '');
-          $('#user_table tbody').append(n);
-          $('#user_table tbody').append(n2);
-
-          n.addClass("account_" + user.status);
-          n2.addClass("account_" + user.status);
-
-          n.attr('data-email', user.email);
-          n.attr('data-quota', user.quota);
-          n.find('.address').text(user.email);
-          n.find('.box-size').text(user.box_size);
-          if (user.box_size == '?') {
-            n.find('.box-size').attr('title', 'Mailbox size is unkown')
-          }
-          n.find('.percent').text(user.percent);
-          n.find('.quota').text((user.quota == '0') ? 'unlimited' : user.quota);
-          n2.find('.restore_info tt').text(user.mailbox);
-
-          if (user.status == 'inactive') continue;
-
-          var add_privs = ["admin"];
-
-          for (var j = 0; j < user.privileges.length; j++) {
-            var p = $("<span><b><span class='name'></span></b> (<a href='#' onclick='mod_priv(this, \"remove\"); return false;' title='Remove Privilege'>remove privilege</a>) |</span>");
-            p.find('span.name').text(user.privileges[j]);
-            n.find('.privs').append(p);
-            if (add_privs.indexOf(user.privileges[j]) >= 0)
-              add_privs.splice(add_privs.indexOf(user.privileges[j]), 1);
-          }
-
-          for (var j = 0; j < add_privs.length; j++) {
-            var p = $("<span><a href='#' onclick='mod_priv(this, \"add\"); return false;' title='Add Privilege'>make <span class='name'></span></a> | </span>");
-            p.find('span.name').text(add_privs[j]);
-            n.find('.add-privs').append(p);
-          }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Accounts - Mail-in-a-Box Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
-    })
-}
 
-function do_add_user() {
-  var email = $("#adduserEmail").val();
-  var pw = $("#adduserPassword").val();
-  var privs = $("#adduserPrivs").val();
-  var quota = $("#adduserQuota").val();
-  api(
-    "/mail/users/add",
-    "POST",
-    {
-      email: email,
-      password: pw,
-      privileges: privs,
-      quota: quota
-    },
-    function(r) {
-      // Responses are multiple lines of pre-formatted text.
-      show_modal_error("Add User", $("<pre/>").text(r));
-      show_users()
-    },
-    function(r) {
-      show_modal_error("Add User", r);
-    });
-  return false;
-}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #111827;
+            line-height: 1.5;
+        }
 
-function users_set_password(elem) {
-  var email = $(elem).parents('tr').attr('data-email');
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-  var yourpw = "";
-  if (api_credentials != null && email == api_credentials.username)
-    yourpw = "<p class='text-danger'>If you change your own password, you will be logged out of this control panel and will need to log in again.</p>";
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #1f2937;
+            color: #f9fafb;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
 
-  show_modal_confirm(
-    "Set Password",
-    $("<p>Set a new password for <b>" + email + "</b>?</p> <p><label for='users_set_password_pw' style='display: block; font-weight: normal'>New Password:</label><input type='password' id='users_set_password_pw'></p><p><small>Passwords must be at least eight characters and may not contain spaces.</small>" + yourpw + "</p>"),
-    "Set Password",
-    function() {
-      api(
-        "/mail/users/password",
-        "POST",
-        {
-          email: email,
-          password: $('#users_set_password_pw').val()
-        },
-        function(r) {
-          // Responses are multiple lines of pre-formatted text.
-          show_modal_error("Set Password", $("<pre/>").text(r));
-        },
-        function(r) {
-          show_modal_error("Set Password", r);
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid #374151;
+        }
+
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f9fafb;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+
+        .nav-item.active {
+            background-color: #1e40af;
+            color: #f9fafb;
+            border-left-color: #3b82f6;
+        }
+
+        .nav-item i {
+            width: 1.25rem;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            color: #166534;
+        }
+
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: #22c55e;
+            border-radius: 50%;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-menu:hover {
+            background-color: #f3f4f6;
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .page-description {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            width: 300px;
+            background-color: #ffffff;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Table */
+        .table-container {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: #f9fafb;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+            color: #111827;
+            vertical-align: middle;
+        }
+
+        .table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Checkbox */
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+        }
+
+        /* User Avatar in Table */
+        .user-avatar-small {
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-right: 0.75rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-details h4 {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.125rem;
+        }
+
+        .user-details p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.inactive {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-badge.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background-color: #f3f4f6;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background-color: #f59e0b;
+        }
+
+        .progress-fill.danger {
+            background-color: #ef4444;
+        }
+
+        .quota-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .quota-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            background-color: #ffffff;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+        }
+
+        .action-btn:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        .bulk-text {
+            font-size: 0.875rem;
+            color: #0c4a6e;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 50;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .toolbar-left {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-envelope-open"></i>
+                    Mail-in-a-Box
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="#dashboard" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard
+                    </a>
+                    <a href="#system-status" class="nav-item">
+                        <i class="fas fa-server"></i>
+                        System Status
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Email Management</div>
+                    <a href="#email-accounts" class="nav-item active">
+                        <i class="fas fa-users"></i>
+                        Email Accounts
+                    </a>
+                    <a href="#aliases" class="nav-item">
+                        <i class="fas fa-at"></i>
+                        Aliases
+                    </a>
+                    <a href="#mail-flow" class="nav-item">
+                        <i class="fas fa-route"></i>
+                        Mail Flow
+                    </a>
+                    <a href="#mail-logs" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        Mail Logs
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Security</div>
+                    <a href="#ssl-certificates" class="nav-item">
+                        <i class="fas fa-certificate"></i>
+                        SSL Certificates
+                    </a>
+                    <a href="#spam-filtering" class="nav-item">
+                        <i class="fas fa-shield-alt"></i>
+                        Spam Filtering
+                    </a>
+                    <a href="#authentication" class="nav-item">
+                        <i class="fas fa-key"></i>
+                        Authentication
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Configuration</div>
+                    <a href="#dns-settings" class="nav-item">
+                        <i class="fas fa-globe"></i>
+                        DNS Settings
+                    </a>
+                    <a href="#backup" class="nav-item">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Backup
+                    </a>
+                    <a href="#settings" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Email Accounts</h1>
+                <div class="header-actions">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        All Systems Operational
+                    </div>
+                    <div class="user-menu">
+                        <div class="user-avatar">A</div>
+                        <span>admin@example.com</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Email Accounts</h1>
+                        <p class="page-description">Manage user accounts, quotas, and permissions for your mail server</p>
+                    </div>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Account
+                    </button>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Search accounts..." id="searchInput">
+                        </div>
+                        <select class="filter-select" id="domainFilter">
+                            <option value="">All Domains</option>
+                            <option value="example.com">example.com</option>
+                            <option value="company.org">company.org</option>
+                        </select>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="warning">Warning</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="bulk-actions" id="bulkActions">
+                    <span class="bulk-text">
+                        <span id="selectedCount">0</span> accounts selected
+                    </span>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-edit"></i>
+                        Edit Quotas
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-key"></i>
+                        Reset Passwords
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+
+                <!-- Email Accounts Table -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="checkbox" id="selectAll">
+                                </th>
+                                <th>Account</th>
+                                <th>Domain</th>
+                                <th>Status</th>
+                                <th>Storage Usage</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountsTable">
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox row-checkbox">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">JD</div>
+                                        <div class="user-details">
+                                            <h4>john.doe@example.com</h4>
+                                            <p>John Doe</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>example.com</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="quota-info">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 65%"></div>
+                                        </div>
+                                        <span class="quota-text">1.3 GB / 2 GB (65%)</span>
+                                    </div>
+                                </td>
+                                <td>2 hours ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn" title="Reset Password">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox row-checkbox">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">JS</div>
+                                        <div class="user-details">
+                                            <h4>jane.smith@example.com</h4>
+                                            <p>Jane Smith</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>example.com</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="quota-info">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill warning" style="width: 85%"></div>
+                                        </div>
+                                        <span class="quota-text">4.2 GB / 5 GB (85%)</span>
+                                    </div>
+                                </td>
+                                <td>1 day ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn" title="Reset Password">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox row-checkbox">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">MB</div>
+                                        <div class="user-details">
+                                            <h4>mike.brown@company.org</h4>
+                                            <p>Mike Brown</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>company.org</td>
+                                <td>
+                                    <span class="status-badge warning">Warning</span>
+                                </td>
+                                <td>
+                                    <div class="quota-info">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill danger" style="width: 95%"></div>
+                                        </div>
+                                        <span class="quota-text">950 MB / 1 GB (95%)</span>
+                                    </div>
+                                </td>
+                                <td>3 days ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn" title="Reset Password">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox row-checkbox">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">SW</div>
+                                        <div class="user-details">
+                                            <h4>sarah.wilson@example.com</h4>
+                                            <p>Sarah Wilson</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>example.com</td>
+                                <td>
+                                    <span class="status-badge inactive">Inactive</span>
+                                </td>
+                                <td>
+                                    <div class="quota-info">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 25%"></div>
+                                        </div>
+                                        <span class="quota-text">250 MB / 1 GB (25%)</span>
+                                    </div>
+                                </td>
+                                <td>2 weeks ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn" title="Reset Password">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="checkbox row-checkbox">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">AD</div>
+                                        <div class="user-details">
+                                            <h4>admin@example.com</h4>
+                                            <p>System Administrator</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>example.com</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="quota-info">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 45%"></div>
+                                        </div>
+                                        <span class="quota-text">2.2 GB / 5 GB (45%)</span>
+                                    </div>
+                                </td>
+                                <td>30 minutes ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn" title="Reset Password">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Navigation handling
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Update header title
+                const title = this.textContent.trim();
+                document.querySelector('.header-title').textContent = title;
+            });
         });
-    });
-}
 
-function users_set_quota(elem) {
-    var email = $(elem).parents('tr').attr('data-email');
-    var quota = $(elem).parents('tr').attr('data-quota');
+        // Checkbox handling
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
 
-    show_modal_confirm(
-        "Set Quota",
-        $("<p>Set quota for <b>" + email + "</b>?</p>" +
-            "<p>" +
-            "<label for='users_set_quota' style='display: block; font-weight: normal'>Quota:</label>" +
-            "<input type='text' id='users_set_quota' value='" + quota + "'></p>" +
-            "<p><small>Quotas may not contain any spaces or commas.  Suffixes of G (gigabytes) and M (megabytes) are allowed.</small></p>" +
-            "<p><small>For unlimited storage enter 0 (zero)</small></p>"),
-        "Set Quota",
-        function() {
-            api(
-                "/mail/users/quota",
-                "POST",
-                {
-                    email: email,
-                    quota: $('#users_set_quota').val()
-                },
-                function(r) {
-                    show_users();
-                },
-                function(r) {
-                    show_modal_error("Set Quota", r);
-                });
+        function updateBulkActions() {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            const count = checkedBoxes.length;
+            
+            selectedCount.textContent = count;
+            
+            if (count > 0) {
+                bulkActions.classList.add('show');
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        selectAllCheckbox.addEventListener('change', function() {
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActions();
         });
-}
 
-function users_remove(elem) {
-  var email = $(elem).parents('tr').attr('data-email');
-
-  // can't remove yourself
-  if (api_credentials != null && email == api_credentials.username) {
-    show_modal_error("Archive User", "You cannot archive your own account.");
-    return;
-  }
-
-  show_modal_confirm(
-    "Archive User",
-    $("<p>Are you sure you want to archive <b>" + email + "</b>?</p> <p>The user's mailboxes will not be deleted (you can do that later), but the user will no longer be able to log into any services on this machine.</p>"),
-    "Archive",
-    function() {
-      api(
-        "/mail/users/remove",
-        "POST",
-        {
-          email: email
-        },
-        function(r) {
-          // Responses are multiple lines of pre-formatted text.
-          show_modal_error("Remove User", $("<pre/>").text(r));
-          show_users();
-        },
-        function(r) {
-          show_modal_error("Remove User", r);
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                
+                updateBulkActions();
+            });
         });
-    });
-}
 
-function mod_priv(elem, add_remove) {
-  var email = $(elem).parents('tr').attr('data-email');
-  var priv = $(elem).parents('td').find('.name').text();
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const domainFilter = document.getElementById('domainFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const tableRows = document.querySelectorAll('#accountsTable tr');
 
-  // can't remove your own admin access
-  if (priv == "admin" && add_remove == "remove" && api_credentials != null && email == api_credentials.username) {
-    show_modal_error("Modify Privileges", "You cannot remove the admin privilege from yourself.");
-    return;
-  }
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const domainValue = domainFilter.value.toLowerCase();
+            const statusValue = statusFilter.value.toLowerCase();
 
-  var add_remove1 = add_remove.charAt(0).toUpperCase() + add_remove.substring(1);
-  show_modal_confirm(
-    "Modify Privileges",
-    $("<p>Are you sure you want to " + add_remove + " the " + priv + " privilege for <b>" + email + "</b>?</p>"),
-    add_remove1,
-    function() {
-      api(
-        "/mail/users/privileges/" + add_remove,
-        "POST",
-        {
-          email: email,
-          privilege: priv
-        },
-        function(r) {
-          show_users();
+            tableRows.forEach(row => {
+                const email = row.querySelector('.user-details h4').textContent.toLowerCase();
+                const domain = row.cells[2].textContent.toLowerCase();
+                const status = row.querySelector('.status-badge').textContent.toLowerCase();
+
+                const matchesSearch = email.includes(searchTerm);
+                const matchesDomain = !domainValue || domain.includes(domainValue);
+                const matchesStatus = !statusValue || status.includes(statusValue);
+
+                if (matchesSearch && matchesDomain && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        domainFilter.addEventListener('change', filterTable);
+        statusFilter.addEventListener('change', filterTable);
+
+        // Action button handlers
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.title;
+                const row = this.closest('tr');
+                const email = row.querySelector('.user-details h4').textContent;
+                
+                console.log(`${action} action for ${email}`);
+                // Here you would implement the actual action
+            });
         });
-    });
-}
+    </script>
+</body>
+</html>
 
-function generate_random_password() {
-  var pw = "";
-  var charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"; // confusable characters skipped
-  for (var i = 0; i < 12; i++)
-    pw += charset.charAt(Math.floor(Math.random() * charset.length));
-  show_modal_error("Random Password", "<p>Here, try this:</p> <p><code style='font-size: 110%'>" + pw + "</code></p>");
-  return false; // cancel click
-}
-</script>

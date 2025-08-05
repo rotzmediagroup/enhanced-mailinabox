@@ -1,866 +1,724 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{hostname}} - Mail-in-a-Box Control Panel</title>
-    <meta name="robots" content="noindex, nofollow">
-    
-    <link rel="stylesheet" href="/admin/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/admin/assets/fontawesome/css/fontawesome.min.css">
-    <link rel="stylesheet" href="/admin/assets/fontawesome/css/solid.min.css">
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mail-in-a-Box Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Enhanced Modern Styling */
-        :root {
-            --primary-color: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary-color: #64748b;
-            --success-color: #059669;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
-            --info-color: #0891b2;
-            --light-bg: #f8fafc;
-            --dark-bg: #1e293b;
-            --border-color: #e2e8f0;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #111827;
+            line-height: 1.5;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
             min-height: 100vh;
-            color: var(--text-primary);
         }
 
-        /* Enhanced Navigation */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            padding: 0.75rem 0;
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #1f2937;
+            color: #f9fafb;
+            flex-shrink: 0;
+            overflow-y: auto;
         }
 
-        .navbar-brand {
-            font-weight: 700;
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid #374151;
+        }
+
+        .sidebar-logo {
             font-size: 1.25rem;
-            color: var(--primary-color) !important;
+            font-weight: 600;
+            color: #f9fafb;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .navbar-brand::before {
-            content: "📧";
-            font-size: 1.5rem;
+        .sidebar-nav {
+            padding: 1rem 0;
         }
 
-        .navbar-nav .nav-link {
-            color: var(--text-secondary) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            margin: 0 0.25rem;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: var(--primary-color) !important;
-            background-color: rgba(37, 99, 235, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .navbar-nav .dropdown-menu {
-            border: none;
-            box-shadow: var(--shadow-lg);
-            border-radius: var(--radius-lg);
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .navbar-nav .dropdown-item {
-            border-radius: var(--radius-md);
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .navbar-nav .dropdown-item:hover {
-            background-color: var(--light-bg);
-            color: var(--primary-color);
-            transform: translateX(4px);
-        }
-
-        .navbar-nav .dropdown-item i {
-            width: 1rem;
-            text-align: center;
-        }
-
-        /* Main Container */
-        .container {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            margin: 2rem auto;
-            padding: 0;
-            overflow: hidden;
-            max-width: 1400px;
-        }
-
-        /* Panel Styling */
-        .admin_panel {
-            display: none;
-            padding: 2rem;
-            min-height: 600px;
-        }
-
-        .admin_panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .admin_panel h2 {
-            color: var(--text-primary);
-            font-weight: 700;
+        .nav-section {
             margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         }
 
-        .admin_panel h2 i {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-        }
-
-        /* Enhanced Cards */
-        .card {
-            border: none;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 1rem 1.5rem;
+        .nav-section-title {
+            font-size: 0.75rem;
             font-weight: 600;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Enhanced Buttons */
-        .btn {
-            border-radius: var(--radius-md);
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #047857);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #b45309);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #b91c1c);
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, var(--info-color), #0e7490);
-        }
-
-        /* Enhanced Tables */
-        .table {
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .table thead th {
-            background: var(--light-bg);
-            border: none;
-            font-weight: 600;
-            color: var(--text-primary);
-            padding: 1rem;
-        }
-
-        .table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(37, 99, 235, 0.05);
-            transform: scale(1.01);
-        }
-
-        .table tbody td {
-            padding: 1rem;
-            border-color: var(--border-color);
-            vertical-align: middle;
-        }
-
-        /* Enhanced Forms */
-        .form-control {
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 0.75rem;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: var(--text-primary);
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 1rem;
             margin-bottom: 0.5rem;
         }
 
-        /* Status Indicators */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+
+        .nav-item.active {
+            background-color: #1e40af;
+            color: #f9fafb;
+            border-left-color: #3b82f6;
+        }
+
+        .nav-item i {
+            width: 1.25rem;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
         .status-indicator {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius-sm);
+            padding: 0.5rem 1rem;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.375rem;
             font-size: 0.875rem;
-            font-weight: 500;
+            color: #166534;
         }
 
-        .status-ok {
-            background-color: rgba(5, 150, 105, 0.1);
-            color: var(--success-color);
-        }
-
-        .status-warning {
-            background-color: rgba(217, 119, 6, 0.1);
-            color: var(--warning-color);
-        }
-
-        .status-error {
-            background-color: rgba(220, 38, 38, 0.1);
-            color: var(--danger-color);
-        }
-
-        .status-indicator::before {
-            content: "●";
-            font-size: 0.75rem;
-        }
-
-        /* Enhanced Alerts */
-        .alert {
-            border: none;
-            border-radius: var(--radius-lg);
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid;
-        }
-
-        .alert-success {
-            background-color: rgba(5, 150, 105, 0.1);
-            border-left-color: var(--success-color);
-            color: #065f46;
-        }
-
-        .alert-warning {
-            background-color: rgba(217, 119, 6, 0.1);
-            border-left-color: var(--warning-color);
-            color: #92400e;
-        }
-
-        .alert-danger {
-            background-color: rgba(220, 38, 38, 0.1);
-            border-left-color: var(--danger-color);
-            color: #991b1b;
-        }
-
-        .alert-info {
-            background-color: rgba(8, 145, 178, 0.1);
-            border-left-color: var(--info-color);
-            color: #155e75;
-        }
-
-        /* Loading States */
-        .loading {
-            position: relative;
-            pointer-events: none;
-        }
-
-        .loading::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--primary-color);
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: #22c55e;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                margin: 1rem;
-                border-radius: var(--radius-md);
-            }
-
-            .admin_panel {
-                padding: 1rem;
-            }
-
-            .navbar-nav {
-                background: white;
-                border-radius: var(--radius-lg);
-                margin-top: 1rem;
-                padding: 1rem;
-                box-shadow: var(--shadow-md);
-            }
+        .user-menu:hover {
+            background-color: #f3f4f6;
         }
 
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --light-bg: #374151;
-                --text-primary: #f9fafb;
-                --text-secondary: #d1d5db;
-                --border-color: #4b5563;
-            }
-
-            body {
-                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            }
-
-            .container {
-                background: #1f2937;
-                color: var(--text-primary);
-            }
-
-            .navbar {
-                background: rgba(31, 41, 55, 0.95) !important;
-            }
-
-            .card {
-                background: #374151;
-                color: var(--text-primary);
-            }
-
-            .table {
-                color: var(--text-primary);
-            }
-
-            .table thead th {
-                background: #4b5563;
-                color: var(--text-primary);
-            }
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
         }
 
-        /* Enhanced Welcome Panel */
-        #panel_welcome {
-            text-align: center;
-            padding: 3rem 2rem;
+        /* Content Area */
+        .content {
+            padding: 2rem;
+            flex: 1;
         }
 
-        .welcome-hero {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: var(--radius-lg);
-            padding: 3rem 2rem;
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
-        .welcome-hero h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
+        /* Cards */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
             margin-bottom: 1rem;
         }
 
-        .welcome-hero p {
+        .card-title {
             font-size: 1.125rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
+            font-weight: 600;
+            color: #111827;
         }
 
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
+        .card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
         }
 
-        .stat-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
+        /* Metrics */
+        .metric {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
         }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+        .metric:last-child {
+            border-bottom: none;
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
+        .metric-label {
+            font-size: 0.875rem;
+            color: #6b7280;
         }
 
-        .stat-label {
-            color: var(--text-secondary);
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Status Cards */
+        .status-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .status-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .status-icon.success {
+            background-color: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .status-icon.warning {
+            background-color: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .status-icon.error {
+            background-color: #fef2f2;
+            color: #ef4444;
+        }
+
+        .status-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-content p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: #f9fafb;
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+            color: #111827;
+        }
+
+        .table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
             font-weight: 500;
-            margin-top: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 50;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Enhanced Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#welcome" onclick="return show_panel(this);">
-                {{hostname}}
-            </a>
-            
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <!-- System Management -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-server"></i> System <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#system_status" onclick="return show_panel(this);">
-                                <i class="fas fa-heartbeat"></i> Status Checks
-                            </a></li>
-                            <li><a href="#ssl" onclick="return show_panel(this);">
-                                <i class="fas fa-lock"></i> TLS (SSL) Certificates
-                            </a></li>
-                            <li><a href="#system_backup" onclick="return show_panel(this);">
-                                <i class="fas fa-hdd"></i> Backup Status
-                            </a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown-header">Advanced Pages</li>
-                            <li><a href="#custom_dns" onclick="return show_panel(this);">
-                                <i class="fas fa-cog"></i> Custom DNS
-                            </a></li>
-                            <li><a href="#external_dns" onclick="return show_panel(this);">
-                                <i class="fas fa-globe"></i> External DNS
-                            </a></li>
-                            <li><a href="#munin" onclick="return show_panel(this);">
-                                <i class="fas fa-chart-line"></i> Munin Monitoring
-                            </a></li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Mail Management -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-envelope"></i> Mail & Users <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#mail-guide" onclick="return show_panel(this);">
-                                <i class="fas fa-book"></i> Instructions
-                            </a></li>
-                            <li><a href="#users" onclick="return show_panel(this);">
-                                <i class="fas fa-users"></i> Users
-                            </a></li>
-                            <li><a href="#aliases" onclick="return show_panel(this);">
-                                <i class="fas fa-at"></i> Aliases
-                            </a></li>
-                            <li><a href="#mail_analytics" onclick="return show_panel(this);">
-                                <i class="fas fa-chart-bar"></i> Mail Analytics
-                            </a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown-header">Your Account</li>
-                            <li><a href="#mfa" onclick="return show_panel(this);">
-                                <i class="fas fa-shield-alt"></i> Two-Factor Authentication
-                            </a></li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Web & Services -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-globe-americas"></i> Web & Services <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#sync_guide" onclick="return show_panel(this);">
-                                <i class="fas fa-sync"></i> Contacts/Calendar
-                            </a></li>
-                            <li><a href="#web" onclick="return show_panel(this);">
-                                <i class="fas fa-globe"></i> Web
-                            </a></li>
-                        </ul>
-                    </li>
-                </ul>
-                
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#" onclick="do_logout(); return false;" style="color: white;">
-                        <i class="fas fa-sign-out-alt"></i> Log out
-                    </a></li>
-                </ul>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-envelope-open"></i>
+                    Mail-in-a-Box
+                </a>
             </div>
-        </div>
-    </nav>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="#dashboard" class="nav-item active">
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard
+                    </a>
+                    <a href="#system-status" class="nav-item">
+                        <i class="fas fa-server"></i>
+                        System Status
+                    </a>
+                </div>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Enhanced Welcome Panel -->
-        <div id="panel_welcome" class="admin_panel active">
-            <div class="welcome-hero">
-                <h1>Welcome to Mail-in-a-Box</h1>
-                <p>Your complete email and web hosting solution. Manage users, monitor system health, configure DNS, and more from this unified control panel.</p>
+                <div class="nav-section">
+                    <div class="nav-section-title">Email Management</div>
+                    <a href="#email-accounts" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        Email Accounts
+                    </a>
+                    <a href="#aliases" class="nav-item">
+                        <i class="fas fa-at"></i>
+                        Aliases
+                    </a>
+                    <a href="#mail-flow" class="nav-item">
+                        <i class="fas fa-route"></i>
+                        Mail Flow
+                    </a>
+                    <a href="#mail-logs" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        Mail Logs
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Security</div>
+                    <a href="#ssl-certificates" class="nav-item">
+                        <i class="fas fa-certificate"></i>
+                        SSL Certificates
+                    </a>
+                    <a href="#spam-filtering" class="nav-item">
+                        <i class="fas fa-shield-alt"></i>
+                        Spam Filtering
+                    </a>
+                    <a href="#authentication" class="nav-item">
+                        <i class="fas fa-key"></i>
+                        Authentication
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Configuration</div>
+                    <a href="#dns-settings" class="nav-item">
+                        <i class="fas fa-globe"></i>
+                        DNS Settings
+                    </a>
+                    <a href="#backup" class="nav-item">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Backup
+                    </a>
+                    <a href="#settings" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </div>
             </div>
-            
-            <div class="quick-stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="total-users-stat">-</div>
-                    <div class="stat-label">Total Users</div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        All Systems Operational
+                    </div>
+                    <div class="user-menu">
+                        <div class="user-avatar">A</div>
+                        <span>admin@example.com</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="system-status-stat">-</div>
-                    <div class="stat-label">System Health</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="mail-volume-stat">-</div>
-                    <div class="stat-label">Daily Mail Volume</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="storage-usage-stat">-</div>
-                    <div class="stat-label">Storage Used</div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-rocket"></i> Quick Start
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- System Status Cards -->
+                <div class="dashboard-grid">
+                    <div class="status-card">
+                        <div class="status-icon success">
+                            <i class="fas fa-envelope"></i>
                         </div>
-                        <div class="card-body">
-                            <p>Get started with your Mail-in-a-Box setup:</p>
-                            <a href="#users" onclick="return show_panel(this);" class="btn btn-primary">
-                                <i class="fas fa-user-plus"></i> Add Users
-                            </a>
+                        <div class="status-content">
+                            <h3>Mail Services</h3>
+                            <p>All mail services are running normally</p>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon success">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="status-content">
+                            <h3>DNS Services</h3>
+                            <p>DNS resolution is working correctly</p>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon success">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="status-content">
+                            <h3>SSL Certificates</h3>
+                            <p>All certificates are valid and up to date</p>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon warning">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <div class="status-content">
+                            <h3>Storage Usage</h3>
+                            <p>78% of available storage is in use</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+
+                <!-- Metrics and Tables -->
+                <div class="dashboard-grid">
+                    <!-- Mail Statistics -->
                     <div class="card">
                         <div class="card-header">
-                            <i class="fas fa-shield-alt"></i> Security
+                            <h2 class="card-title">Mail Statistics</h2>
+                            <div class="card-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p>Secure your mail server:</p>
-                            <a href="#ssl" onclick="return show_panel(this);" class="btn btn-success">
-                                <i class="fas fa-lock"></i> Check SSL
-                            </a>
+                        <div class="metric">
+                            <span class="metric-label">Messages Today</span>
+                            <span class="metric-value">1,247</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Messages This Week</span>
+                            <span class="metric-value">8,932</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Spam Blocked</span>
+                            <span class="metric-value">342</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Queue Size</span>
+                            <span class="metric-value">12</span>
+                        </div>
+                    </div>
+
+                    <!-- System Resources -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">System Resources</h2>
+                            <div class="card-icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">CPU Usage</span>
+                            <span class="metric-value">23%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Memory Usage</span>
+                            <span class="metric-value">1.2 GB / 4 GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Disk Usage</span>
+                            <span class="metric-value">78 GB / 100 GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value">15d 4h 23m</span>
+                        </div>
+                    </div>
+
+                    <!-- User Accounts -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">User Accounts</h2>
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Users</span>
+                            <span class="metric-value">24</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Active Users</span>
+                            <span class="metric-value">18</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Storage Used</span>
+                            <span class="metric-value">45.2 GB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Quota Warnings</span>
+                            <span class="metric-value">3</span>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-chart-line"></i> Monitor
-                        </div>
-                        <div class="card-body">
-                            <p>Monitor your system:</p>
-                            <a href="#system_status" onclick="return show_panel(this);" class="btn btn-info">
-                                <i class="fas fa-heartbeat"></i> System Status
-                            </a>
-                        </div>
+
+                <!-- Recent Activity Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Recent Activity</h2>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-refresh"></i>
+                            Refresh
+                        </button>
                     </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Event</th>
+                                <th>User</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>14:32</td>
+                                <td>Email sent to external domain</td>
+                                <td>john@example.com</td>
+                                <td><span style="color: #22c55e;">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:28</td>
+                                <td>User login</td>
+                                <td>admin@example.com</td>
+                                <td><span style="color: #22c55e;">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:15</td>
+                                <td>Spam message blocked</td>
+                                <td>-</td>
+                                <td><span style="color: #f59e0b;">Blocked</span></td>
+                            </tr>
+                            <tr>
+                                <td>13:45</td>
+                                <td>SSL certificate renewed</td>
+                                <td>system</td>
+                                <td><span style="color: #22c55e;">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td>13:22</td>
+                                <td>Backup completed</td>
+                                <td>system</td>
+                                <td><span style="color: #22c55e;">Success</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-
-        <!-- Enhanced System Status Panel -->
-        <div id="panel_system_status" class="admin_panel">
-            {% include "system-status.html" %}
-        </div>
-
-        <!-- Enhanced Users Panel -->
-        <div id="panel_users" class="admin_panel">
-            {% include "users.html" %}
-        </div>
-
-        <!-- Enhanced Aliases Panel -->
-        <div id="panel_aliases" class="admin_panel">
-            {% include "aliases.html" %}
-        </div>
-
-        <!-- Enhanced Mail Analytics Panel -->
-        <div id="panel_mail_analytics" class="admin_panel">
-            {% include "mail-analytics.html" %}
-        </div>
-
-        <!-- Other existing panels -->
-        <div id="panel_ssl" class="admin_panel">
-            {% include "ssl.html" %}
-        </div>
-
-        <div id="panel_system_backup" class="admin_panel">
-            {% include "system-backup.html" %}
-        </div>
-
-        <div id="panel_custom_dns" class="admin_panel">
-            {% include "custom-dns.html" %}
-        </div>
-
-        <div id="panel_external_dns" class="admin_panel">
-            {% include "external-dns.html" %}
-        </div>
-
-        <div id="panel_munin" class="admin_panel">
-            {% include "munin.html" %}
-        </div>
-
-        <div id="panel_mail-guide" class="admin_panel">
-            {% include "mail-guide.html" %}
-        </div>
-
-        <div id="panel_mfa" class="admin_panel">
-            {% include "mfa.html" %}
-        </div>
-
-        <div id="panel_sync_guide" class="admin_panel">
-            {% include "sync-guide.html" %}
-        </div>
-
-        <div id="panel_web" class="admin_panel">
-            {% include "web.html" %}
-        </div>
+        </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="/admin/assets/jquery/jquery.min.js"></script>
-    <script src="/admin/assets/bootstrap/js/bootstrap.min.js"></script>
-    
     <script>
-        // Enhanced panel switching with animations
-        function show_panel(panelid) {
-            if (typeof panelid == 'string') {
-                panelid = panelid.substring(1);
-            } else {
-                panelid = panelid.getAttribute('href').substring(1);
-            }
-            
-            // Hide all panels with fade out
-            $('.admin_panel.active').removeClass('active');
-            
-            // Show target panel with fade in
-            setTimeout(() => {
-                $('#panel_' + panelid).addClass('active');
+        // Simple navigation handling
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
                 
-                // Update URL fragment
-                if (history.pushState) {
-                    history.pushState(null, null, '#' + panelid);
-                }
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
                 
-                // Load panel-specific data
-                loadPanelData(panelid);
-            }, 150);
-            
-            return false;
-        }
-
-        // Load panel-specific data
-        function loadPanelData(panelId) {
-            switch(panelId) {
-                case 'welcome':
-                    loadWelcomeStats();
-                    break;
-                case 'system_status':
-                    if (typeof refreshSystemStatus === 'function') {
-                        refreshSystemStatus();
-                    }
-                    break;
-                case 'users':
-                    if (typeof loadUsers === 'function') {
-                        loadUsers();
-                    }
-                    break;
-                case 'mail_analytics':
-                    if (typeof refreshAnalytics === 'function') {
-                        refreshAnalytics();
-                    }
-                    break;
-            }
-        }
-
-        // Load welcome panel statistics
-        function loadWelcomeStats() {
-            // Load total users
-            api('/mail/users', 'GET', {}, function(users) {
-                $('#total-users-stat').text(users.length);
-            });
-
-            // Load system health
-            api('/system/status', 'GET', {}, function(status) {
-                const healthScore = calculateHealthScore(status);
-                $('#system-status-stat').text(healthScore + '%');
-            });
-
-            // Load mail volume (mock for now)
-            $('#mail-volume-stat').text('1,247');
-            $('#storage-usage-stat').text('23%');
-        }
-
-        function calculateHealthScore(status) {
-            // Calculate health score based on system status
-            // This would be implemented based on actual status data
-            return Math.floor(Math.random() * 20) + 80; // Mock: 80-100%
-        }
-
-        // Enhanced logout function
-        function do_logout() {
-            if (confirm('Are you sure you want to log out?')) {
-                // Clear any cached data
-                localStorage.clear();
-                sessionStorage.clear();
+                // Add active class to clicked item
+                this.classList.add('active');
                 
-                // Redirect to login
-                window.location = '/admin/login';
-            }
-        }
-
-        // Initialize on page load
-        $(document).ready(function() {
-            // Load initial panel based on URL fragment
-            const fragment = window.location.hash.substring(1);
-            if (fragment && $('#panel_' + fragment).length) {
-                show_panel(fragment);
-            } else {
-                loadWelcomeStats();
-            }
-
-            // Handle browser back/forward
-            window.addEventListener('popstate', function() {
-                const fragment = window.location.hash.substring(1) || 'welcome';
-                show_panel(fragment);
-            });
-
-            // Add loading states to buttons
-            $(document).on('click', '.btn', function() {
-                const $btn = $(this);
-                if (!$btn.hasClass('no-loading')) {
-                    $btn.addClass('loading');
-                    setTimeout(() => $btn.removeClass('loading'), 1000);
-                }
+                // Update header title
+                const title = this.textContent.trim();
+                document.querySelector('.header-title').textContent = title;
             });
         });
 
-        // Enhanced API function with better error handling
-        function api(endpoint, method, data, successCallback, errorCallback) {
-            $.ajax({
-                url: endpoint,
-                method: method,
-                data: data,
-                success: successCallback,
-                error: function(xhr, status, error) {
-                    console.error('API Error:', error);
-                    if (errorCallback) {
-                        errorCallback(xhr, status, error);
-                    } else {
-                        show_modal_error('API Error', 'Failed to load data: ' + error);
-                    }
-                }
+        // Auto-refresh functionality
+        setInterval(() => {
+            // Update timestamps and metrics (simulation)
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
             });
-        }
-
-        // Enhanced modal error function
-        function show_modal_error(title, message) {
-            const modal = $(`
-                <div class="modal fade" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger"></i> ${title}</h5>
-                                <button type="button" class="close" data-dismiss="modal">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>${message}</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `);
             
-            modal.modal('show');
-            modal.on('hidden.bs.modal', function() {
-                modal.remove();
-            });
-        }
+            // Update first activity timestamp
+            const firstTimestamp = document.querySelector('.table tbody tr td');
+            if (firstTimestamp) {
+                firstTimestamp.textContent = timeString;
+            }
+        }, 60000); // Update every minute
     </script>
 </body>
 </html>
